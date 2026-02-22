@@ -4,8 +4,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const enemy1 = document.getElementById("enemy1");
   const enemy2 = document.getElementById("enemy2");
   const results = document.getElementById("results");
-  const civNames = Object.keys(civs).sort();
   const button = document.getElementById("findBtn");
+  const civNames = Object.keys(civs).sort(); // Alphabetical
+
+  // Populate dropdowns
+  civNames.forEach(civ => {
+    const option1 = document.createElement("option");
+    option1.value = civ;
+    option1.textContent = civ;
+    enemy1.appendChild(option1);
+
+    const option2 = document.createElement("option");
+    option2.value = civ;
+    option2.textContent = civ;
+    enemy2.appendChild(option2);
+  });
 
   function scoreCounter(counter, enemy) {
     const c = civs[counter];
@@ -40,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     resultsArr.sort((a,b)=>b.score-a.score);
-    
+
     let output = "<h3>Top 5 Primary Counter Pairs</h3>";
     for (let i=0;i<5;i++){
       output += `<div class="result">${resultsArr[i].pair} <br>Score: ${Math.round(resultsArr[i].score)}</div>`;
