@@ -6,107 +6,97 @@ document.addEventListener("DOMContentLoaded", () => {
   const button = document.getElementById("findBtn");
   const resultDiv = document.getElementById("result");
 
-  // --- Add Map Style Dropdown Dynamically ---
-  const mapLabel = document.createElement("label");
-  mapLabel.textContent = " Map Style: ";
-
+  // Create Map Style
   const mapSelect = document.createElement("select");
   mapSelect.id = "mapStyle";
-
-  ["balanced", "choke", "open"].forEach(style => {
-    const option = document.createElement("option");
-    option.value = style;
-    option.textContent =
-      style.charAt(0).toUpperCase() + style.slice(1);
-    mapSelect.appendChild(option);
+  ["balanced","open"].forEach(style=>{
+    const o=document.createElement("option");
+    o.value=style;
+    o.textContent=style;
+    mapSelect.appendChild(o);
   });
 
-  button.parentNode.insertBefore(mapLabel, button);
-  button.parentNode.insertBefore(mapSelect, button);
+  // Create Teammate Selector
+  const mateSelect=document.createElement("select");
+  mateSelect.id="mateCiv";
 
-  // --- Populate Civ Dropdown ---
-  Object.keys(civs).forEach(civ => {
-    const option = document.createElement("option");
-    option.value = civ;
-    option.textContent = civ;
-    civSelect.appendChild(option);
+  Object.keys(civs).forEach(civ=>{
+    const opt=document.createElement("option");
+    opt.value=civ;
+    opt.textContent=civ;
+    civSelect.appendChild(opt.cloneNode(true));
+    mateSelect.appendChild(opt);
   });
 
-  // --- Rebalanced AI Weights ---
-  const weights = {
-    counterStrength: 3,
-    traitAdvantage: 2,
-    chokeBonus: 1,      // ↓ Reduced from 2
-    mobilityBonus: 3    // ↑ Increased from 2
+  button.parentNode.insertBefore(mapSelect,button);
+  button.parentNode.insertBefore(mateSelect,button);
+
+  const weights={
+    counterStrength:3,
+    mobility:4,
+    powerSpike:3,
+    synergy:3
   };
 
-  function scoreCounter(enemy, candidate, mapStyle) {
-    let score = 0;
+  function score(enemy,candidate,mate,mapStyle){
+    let s=0;
 
-    // 1. Strength vs Weakness
-    enemy.weaknesses.forEach(w => {
-      if (candidate.strengths.includes(w)) {
-        score += weights.counterStrength;
-      }
+    // Counter logic
+    enemy.strengths?.forEach(str=>{
+      if(candidate.strengths.includes("anti-"+str))
+        s+=weights.counterStrength;
     });
 
-    // 2. Trait Advantage
-    if (
-      enemy.traits.includes("aggressive") &&
-      candidate.traits.includes("defensive")
-    ) {
-      score += weights.traitAdvantage;
+    // Mobility bias (open maps)
+    if(mapStyle==="open"){
+      if(candidate.traits.includes("mobile"))
+        s+=weights.mobility;
+      if(candidate.strengths.includes("cavalry")||
+         candidate.strengths.includes("cavalry-archer"))
+        s+=weights.mobility;
     }
 
-    // 3. Map Style Bias
-    if (mapStyle === "choke") {
-      if (candidate.traits.includes("defensive"))
-        score += weights.chokeBonus;
-      if (candidate.traits.includes("choke-control"))
-        score += weights.chokeBonus;
+    // DM power spike bonus
+    if(candidate.traits.includes("power-spike"))
+      s+=weights.powerSpike;
+
+    // Synergy: avoid duplicate roles
+    if(mate){
+      if(JSON.stringify(candidate.strengths)===
+         JSON.stringify(mate.strengths))
+        s-=weights.synergy;
+      else
+        s+=weights.synergy;
     }
 
-    if (mapStyle === "open") {
-      if (candidate.traits.includes("mobile"))
-        score += weights.mobilityBonus;
-      if (candidate.strengths.includes("cavalry"))
-        score += weights.mobilityBonus;
-      if (candidate.strengths.includes("cavalry-archer"))
-        score += weights.mobilityBonus;
-    }
-
-    return score;
+    return s;
   }
 
-  button.addEventListener("click", () => {
+  button.addEventListener("click",()=>{
 
-    const enemyName = civSelect.value;
-    const mapStyle = mapSelect.value;
-    const enemyData = civs[enemyName];
+    const enemyName=civSelect.value;
+    const mateName=mateSelect.value;
+    const mapStyle=mapSelect.value;
 
-    if (!enemyData) {
-      resultDiv.innerHTML = "<p>No civ data found.</p>";
-      return;
-    }
+    const enemy=civs[enemyName];
+    const mate=civs[mateName];
 
-    const ranked = Object.keys(civs)
-      .filter(c => c !== enemyName)
-      .map(c => ({
-        civ: c,
-        score: scoreCounter(enemyData, civs[c], mapStyle)
+    const ranked=Object.keys(civs)
+      .filter(c=>c!==enemyName)
+      .map(c=>({
+        civ:c,
+        score:score(enemy,civs[c],mate,mapStyle)
       }))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 3);
+      .sort((a,b)=>b.score-a.score)
+      .slice(0,3);
 
-    resultDiv.innerHTML = `
-      <h3>Top Counter Civs vs ${enemyName}</h3>
-      <p><strong>Map Style:</strong> ${mapStyle}</p>
+    resultDiv.innerHTML=`
+      <h3>Top Counters vs ${enemyName}</h3>
+      <p>Map: ${mapStyle} | Teammate: ${mateName}</p>
       <ol>
-        ${ranked.map(r => `
-          <li>
-            <strong>${r.civ}</strong> (Score: ${r.score})<br>
-            ${civs[r.civ].notes}
-          </li>
+        ${ranked.map(r=>`
+          <li><strong>${r.civ}</strong> (${r.score})<br>
+          ${civs[r.civ].notes}</li>
         `).join("")}
       </ol>
     `;
