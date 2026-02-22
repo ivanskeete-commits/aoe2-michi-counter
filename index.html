@@ -2,24 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>AoE2 Michi DM Counter Tool</title>
+  <title>AOE2 DE 2v2 Counter Picker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <h1>AoE2 Michi DM Counter (2v2)</h1>
-  <p class="subtitle">Post-Imperial • Death Match • Conquest</p>
+  <h1>AOE2 DE 2v2 Counter Picker</h1>
+  <p class="subtitle">Optimized for: 2v2 • Death Match • Post-Imp • 250-300 pop • Fast speed • Open terrain</p>
 
-  <label>Enemy Civilization:</label>
-  <select id="enemyCiv"></select>
+  <label>Enemy Civ 1:</label>
+  <select id="enemy1"></select>
 
-  <button id="findBtn">Find Counter Team</button>
+  <label>Enemy Civ 2:</label>
+  <select id="enemy2"></select>
 
-  <div id="result"></div>
+  <button id="findBtn">Find Best Counter Pair</button>
+
+  <div id="results"></div>
 
   <script src="civs.js" defer></script>
   <script src="app.js" defer></script>
-
 </body>
 </html>
