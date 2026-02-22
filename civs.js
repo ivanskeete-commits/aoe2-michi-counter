@@ -1,52 +1,40 @@
 console.log("civs.js loaded");
 
 const civs = {
-  Aztecs: { roles: ["frontline", "monk_support"], notes: "Strong infantry and monks; weaker siege late. Counter: ranged civs or elite siege." },
-  Berbers: { roles: ["cavalry"], notes: "Fast cavalry units; weak in static choke fights. Counter: halbs or heavy archers." },
-  Britons: { roles: ["ranged_dps"], notes: "Long-range archers; strong trebs. Counter: fast cavalry or monks." },
-  Bulgarians: { roles: ["frontline"], notes: "Cheap infantry; moderate siege. Counter: siege-heavy civs." },
-  Burmese: { roles: ["frontline", "siege"], notes: "Infantry + monks; decent siege. Counter: camels and ranged DPS." },
-  Byzantines: { roles: ["frontline", "trash_anchor"], notes: "Cheap halbs, strong late-game anchor. Counter: mass siege or strong cav." },
-  Celts: { roles: ["siege", "frontline"], notes: "Fast siege onagers, strong infantry. Counter: camels, monks, or ranged units." },
-  Chinese: { roles: ["ranged_dps"], notes: "Versatile arbalests; gold-efficient. Counter: fast cavalry and heavy siege." },
-  Cumans: { roles: ["cavalry"], notes: "Cavalry civ; strong early-mid game. Counter: halbs or defensive archers." },
-  Dravidians: { roles: ["ranged_dps"], notes: "Flexible infantry and skirms; weak late siege. Counter: siege civs." },
-  Ethiopians: { roles: ["ranged_dps", "siege"], notes: "Archers + siege bonuses. Counter: strong frontline units." },
-  Franks: { roles: ["cavalry"], notes: "Paladin power; predictable push. Counter: halbs and defensive siege." },
-  Goths: { roles: ["frontline"], notes: "Infantry spam; vulnerable to HC and siege. Counter: ranged DPS and siege." },
-  Huns: { roles: ["cavalry"], notes: "Fast cavalry; weak static defense. Counter: halbs or mass archers." },
-  Incas: { roles: ["frontline", "trash_anchor"], notes: "Flexible infantry + strong eco. Counter: siege or ranged spam." },
-  Italians: { roles: ["ranged_dps"], notes: "Strong gunpowder + archers. Counter: heavy frontline and camels." },
-  Japanese: { roles: ["frontline"], notes: "Strong halbs and infantry trades. Counter: siege-heavy civs." },
-  Khmer: { roles: ["siege", "elephant"], notes: "Powerful scorpions + elephants. Counter: ranged DPS and mass halbs." },
-  Koreans: { roles: ["siege", "ranged_dps"], notes: "War Wagons + defensive buildings. Counter: mass ranged units or monks." },
-  Lithuanians: { roles: ["cavalry"], notes: "Relic-based cavalry scaling. Counter: halbs and monks." },
-  Magyars: { roles: ["cavalry"], notes: "Strong late cavalry and CA. Counter: halbs and ranged spam." },
-  Malay: { roles: ["elephant"], notes: "Trash elephants; less siege control. Counter: siege and camels." },
-  Malians: { roles: ["frontline"], notes: "Infantry versatility; limited late siege. Counter: siege civs." },
-  Mayans: { roles: ["ranged_dps"], notes: "Efficient archers; strong eco. Counter: cavalry and monks." },
-  Mongols: { roles: ["siege", "ranged_dps"], notes: "Drill siege and strong ranged. Counter: halbs and fast infantry." },
-  Persians: { roles: ["elephant", "cavalry"], notes: "War elephants + solid eco. Counter: anti-elephant units (pikes, halbs)." },
-  Poles: { roles: ["cavalry"], notes: "Strong cav + eco boost. Counter: halbs and ranged spam." },
-  Portuguese: { roles: ["ranged_dps", "siege"], notes: "Gunpowder + bombard cannons. Counter: heavy melee and paladins." },
-  Romans: { roles: ["frontline"], notes: "Infantry and scorpions. Counter: ranged DPS and siege." },
-  Saracens: { roles: ["ranged_dps"], notes: "Flexible archer civ. Counter: halbs and strong siege." },
-  Sicilians: { roles: ["frontline"], notes: "Resistant infantry and cavalry. Counter: siege-heavy civs." },
-  Slavs: { roles: ["siege", "frontline"], notes: "Strong siege + halbs. Counter: camels and ranged units." },
-  Spanish: { roles: ["ranged_dps", "siege"], notes: "Bombard + gunpowder. Counter: cavalry and halbs." },
-  Tatars: { roles: ["ranged_dps"], notes: "Cavalry archers + hill bonuses. Counter: camels and halbs." },
-  Teutons: { roles: ["frontline", "siege"], notes: "Tanky halbs + siege. Counter: ranged spam." },
-  Turks: { roles: ["siege", "ranged_dps"], notes: "Elite bombard + gold heavy. Counter: cavalry and halbs." },
-  Vietnamese: { roles: ["ranged_dps"], notes: "Durable archers. Counter: camels or mass siege." },
-  Vikings: { roles: ["frontline"], notes: "Infantry strong, limited siege. Counter: siege and ranged units." },
-  // Expansion civs
-  Ethiopians: { roles: ["ranged_dps", "siege"], notes: "Strong archers + siege. Counter: fast cavalry and siege civs." },
-  Bulgarians: { roles: ["frontline"], notes: "Cheap infantry; solid economy. Counter: siege units." },
-  Cumans: { roles: ["cavalry"], notes: "Cavalry-focused; fast early push. Counter: halbs and monks." },
-  Lithuanians: { roles: ["cavalry"], notes: "Relic-based cavalry. Counter: halbs." },
-  Khmer: { roles: ["siege", "elephant"], notes: "Powerful elephants + siege. Counter: anti-elephant units." },
-  Incas: { roles: ["frontline", "trash_anchor"], notes: "Strong infantry + eco. Counter: siege civs." },
-  Dravidians: { roles: ["ranged_dps"], notes: "Infantry + skirms. Counter: siege." },
-  Gurjaras: { roles: ["cavalry"], notes: "Camels + cavalry. Counter: halbs." },
-  Hindustanis: { roles: ["ranged_dps", "anti_cavalry"], notes: "Hand cannons + camels. Counter: halbs." }
+  Byzantines: {
+    strengths: ["halberdier", "trash", "defense"],
+    weaknesses: ["low-damage-cavalry"],
+    traits: ["defensive", "cheap-units"],
+    notes: "Cheap counter units and excellent choke defense."
+  },
+  Franks: {
+    strengths: ["cavalry"],
+    weaknesses: ["halberdier"],
+    traits: ["aggressive", "gold-heavy"],
+    notes: "Strong paladins and direct pressure."
+  },
+  Mongols: {
+    strengths: ["cavalry-archer", "siege"],
+    weaknesses: ["halberdier"],
+    traits: ["mobile", "power-spike"],
+    notes: "Fast siege and high mobility."
+  },
+  Turks: {
+    strengths: ["gunpowder", "siege"],
+    weaknesses: ["trash"],
+    traits: ["gold-heavy", "late-game"],
+    notes: "Strong bombard cannons and gunpowder push."
+  },
+  Celts: {
+    strengths: ["siege", "infantry"],
+    weaknesses: ["mobility"],
+    traits: ["choke-control"],
+    notes: "Fast siege and strong push through narrow paths."
+  },
+  Britons: {
+    strengths: ["archer"],
+    weaknesses: ["siege", "cavalry"],
+    traits: ["ranged"],
+    notes: "Long-range arbalest dominance."
+  }
 };
