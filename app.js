@@ -32,12 +32,12 @@ document.addEventListener("DOMContentLoaded", () => {
     civSelect.appendChild(option);
   });
 
-  // --- Adjustable AI Weights ---
+  // --- Rebalanced AI Weights ---
   const weights = {
     counterStrength: 3,
     traitAdvantage: 2,
-    chokeBonus: 2,
-    mobilityBonus: 2
+    chokeBonus: 1,      // ↓ Reduced from 2
+    mobilityBonus: 3    // ↑ Increased from 2
   };
 
   function scoreCounter(enemy, candidate, mapStyle) {
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // 2. Trait Advantage (Defensive counters Aggressive)
+    // 2. Trait Advantage
     if (
       enemy.traits.includes("aggressive") &&
       candidate.traits.includes("defensive")
