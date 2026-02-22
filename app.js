@@ -5,23 +5,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const enemy2 = document.getElementById("enemy2");
   const results = document.getElementById("results");
   const civNames = Object.keys(civs).sort();
+  const button = document.getElementById("findBtn");
 
   function scoreCounter(counter, enemy) {
     const c = civs[counter];
     const e = civs[enemy];
     let score = 0;
-
     score += c.antiCav * e.cav * 1.5;
     score += c.antiArcher * e.archer * 1.5;
     score += c.antiInf * (5 - e.archer) * 1.0;
     score += c.siege * 1.2;
     score += c.mobility * 1.5;
     score += c.eco * 0.5;
-
     return score;
   }
 
-  window.findCounters = function() {
+  function findCounters() {
     const e1 = enemy1.value;
     const e2 = enemy2.value;
     const resultsArr = [];
@@ -41,10 +40,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     resultsArr.sort((a,b)=>b.score-a.score);
-    let output = "<h3>Top 5 Counter Pairs</h3>";
+    
+    let output = "<h3>Top 5 Primary Counter Pairs</h3>";
     for (let i=0;i<5;i++){
-      output += `<div class="result">${resultsArr[i].pair}<br>Score: ${Math.round(resultsArr[i].score)}</div>`;
+      output += `<div class="result">${resultsArr[i].pair} <br>Score: ${Math.round(resultsArr[i].score)}</div>`;
     }
+
+    output += "<h3>Top 3 Alternative Combos</h3>";
+    for (let i=5;i<8;i++){
+      output += `<div class="result">${resultsArr[i].pair} <br>Score: ${Math.round(resultsArr[i].score)}</div>`;
+    }
+
     results.innerHTML = output;
   }
+
+  button.addEventListener("click", findCounters);
 });
