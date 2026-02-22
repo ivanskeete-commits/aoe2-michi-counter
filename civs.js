@@ -1,59 +1,48 @@
 console.log("civs.js loaded");
 
 const civs = {
-
-  // CAVALRY POWER
-  Franks: { strengths:["cavalry"], traits:["aggressive","power-spike"], notes:"Top-tier paladin civ." },
-  Lithuanians: { strengths:["cavalry"], traits:["aggressive","power-spike"], notes:"High burst cavalry." },
-  Poles: { strengths:["cavalry"], traits:["aggressive"], notes:"Strong cavalry scaling." },
-  Persians: { strengths:["cavalry"], traits:["power-spike"], notes:"War elephants and cav flood." },
-  Teutons: { strengths:["cavalry","infantry"], traits:["tank"], notes:"Extremely durable units." },
-  Bulgarians: { strengths:["infantry","cavalry"], traits:["aggressive"], notes:"Strong melee pressure." },
-  Sicilians: { strengths:["cavalry","infantry"], traits:["tank"], notes:"Resilient frontline." },
-
-  // CAV ARCHER / MOBILE DPS
-  Mongols: { strengths:["cavalry-archer","siege"], traits:["mobile","power-spike"], notes:"Elite CA + fast siege." },
-  Magyars: { strengths:["cavalry-archer"], traits:["mobile"], notes:"Strong late-game CA." },
-  Tatars: { strengths:["cavalry-archer"], traits:["mobile"], notes:"Mobile high-ground power." },
-  Cumans: { strengths:["cavalry"], traits:["mobile"], notes:"Fast cavalry flood." },
-  Huns: { strengths:["cavalry","cavalry-archer"], traits:["mobile"], notes:"Rapid cavalry production." },
-
-  // GUNPOWDER / DPS
-  Turks: { strengths:["gunpowder","siege"], traits:["power-spike"], notes:"Elite bombard + gunpowder." },
-  Portuguese: { strengths:["gunpowder"], traits:["late-game"], notes:"Strong bombard cannons." },
-  Spanish: { strengths:["gunpowder","cavalry"], traits:["aggressive"], notes:"Conqs + bombard." },
-  Hindustanis: { strengths:["gunpowder","anti-cavalry"], traits:["power-spike"], notes:"Great camels + HC." },
-  Saracens: { strengths:["archer","camel"], traits:["mobile"], notes:"Flexible archer + camel civ." },
-
-  // SIEGE PRESSURE
-  Celts: { strengths:["siege","infantry"], traits:["power-spike"], notes:"Fast siege flood." },
-  Slavs: { strengths:["siege","infantry"], traits:["aggressive"], notes:"Heavy siege pushes." },
-  Ethiopians: { strengths:["archer","siege"], traits:["power-spike"], notes:"Fast-firing siege + archers." },
-  Koreans: { strengths:["siege"], traits:["late-game"], notes:"Strong defensive siege." },
-
-  // DEFENSIVE / FLEX
-  Byzantines: { strengths:["trash","halberdier"], traits:["defensive"], notes:"Cheap counter units." },
-  Chinese: { strengths:["archer"], traits:["balanced"], notes:"Strong ranged scaling." },
-  Japanese: { strengths:["infantry"], traits:["balanced"], notes:"Solid halbs + infantry." },
-  Vikings: { strengths:["infantry"], traits:["balanced"], notes:"Strong infantry core." },
-  Romans: { strengths:["infantry"], traits:["tank"], notes:"Durable infantry." },
-  Dravidians: { strengths:["infantry"], traits:["balanced"], notes:"Infantry focus." },
-  Malians: { strengths:["infantry"], traits:["balanced"], notes:"Versatile infantry." },
-  Incas: { strengths:["infantry"], traits:["balanced"], notes:"Flexible infantry options." },
-
-  // ARCHER FOCUS
-  Britons: { strengths:["archer"], traits:["ranged"], notes:"Long-range arbalest civ." },
-  Mayans: { strengths:["archer"], traits:["ranged"], notes:"Strong archer spam." },
-  Vietnamese: { strengths:["archer"], traits:["ranged"], notes:"Durable archers." },
-  Aztecs: { strengths:["infantry"], traits:["aggressive"], notes:"Infantry flood." },
-
-  // ELEPHANTS
-  Khmer: { strengths:["elephant"], traits:["power-spike"], notes:"Strong battle elephants." },
-  Burmese: { strengths:["infantry","elephant"], traits:["aggressive"], notes:"Elephant + infantry." },
-  Malay: { strengths:["elephant"], traits:["power-spike"], notes:"Cheap elephants." },
-
-  // OTHER CAV MIX
-  Berbers: { strengths:["cavalry"], traits:["mobile"], notes:"Discount cavalry." },
-  Goths: { strengths:["infantry"], traits:["aggressive"], notes:"Infantry swarm." },
-  Italians: { strengths:["gunpowder"], traits:["balanced"], notes:"Flexible gunpowder civ." }
+  "Armenians":      { siege:3, cav:3, mobility:2, archer:3, eco:3, antiCav:2, antiArcher:2, antiInf:2 },
+  "Aztecs":         { siege:3, cav:1, mobility:2, archer:2, eco:4, antiCav:4, antiArcher:3, antiInf:3 },
+  "Bengalis":       { siege:3, cav:3, mobility:2, archer:3, eco:3, antiCav:3, antiArcher:3, antiInf:2 },
+  "Berbers":        { siege:3, cav:5, mobility:5, archer:3, eco:3, antiCav:3, antiArcher:2, antiInf:2 },
+  "Bohemians":      { siege:5, cav:2, mobility:2, archer:4, eco:3, antiCav:5, antiArcher:3, antiInf:4 },
+  "Britons":        { siege:2, cav:2, mobility:2, archer:5, eco:3, antiCav:2, antiArcher:5, antiInf:2 },
+  "Bulgarians":     { siege:4, cav:4, mobility:4, archer:2, eco:3, antiCav:3, antiArcher:2, antiInf:4 },
+  "Burgundians":    { siege:3, cav:5, mobility:4, archer:2, eco:4, antiCav:3, antiArcher:2, antiInf:3 },
+  "Burmese":        { siege:3, cav:3, mobility:2, archer:2, eco:3, antiCav:3, antiArcher:2, antiInf:4 },
+  "Byzantines":     { siege:3, cav:3, mobility:3, archer:3, eco:3, antiCav:5, antiArcher:4, antiInf:4 },
+  "Celts":          { siege:5, cav:2, mobility:3, archer:2, eco:3, antiCav:2, antiArcher:2, antiInf:4 },
+  "Chinese":        { siege:3, cav:3, mobility:3, archer:4, eco:5, antiCav:3, antiArcher:4, antiInf:3 },
+  "Cumans":         { siege:3, cav:4, mobility:5, archer:2, eco:4, antiCav:3, antiArcher:2, antiInf:2 },
+  "Dravidians":     { siege:3, cav:1, mobility:2, archer:4, eco:3, antiCav:4, antiArcher:3, antiInf:4 },
+  "Ethiopians":     { siege:4, cav:2, mobility:3, archer:5, eco:3, antiCav:3, antiArcher:4, antiInf:3 },
+  "Franks":         { siege:3, cav:5, mobility:4, archer:2, eco:4, antiCav:4, antiArcher:2, antiInf:3 },
+  "Georgians":      { siege:3, cav:4, mobility:4, archer:3, eco:3, antiCav:3, antiArcher:3, antiInf:3 },
+  "Goths":          { siege:2, cav:1, mobility:2, archer:1, eco:3, antiCav:3, antiArcher:2, antiInf:5 },
+  "Gurjaras":       { siege:3, cav:5, mobility:5, archer:2, eco:3, antiCav:4, antiArcher:2, antiInf:3 },
+  "Hindustanis":    { siege:3, cav:3, mobility:3, archer:3, eco:4, antiCav:4, antiArcher:3, antiInf:3 },
+  "Huns":           { siege:3, cav:5, mobility:5, archer:3, eco:4, antiCav:3, antiArcher:3, antiInf:2 },
+  "Incas":          { siege:3, cav:1, mobility:2, archer:3, eco:4, antiCav:5, antiArcher:3, antiInf:4 },
+  "Italians":       { siege:3, cav:2, mobility:3, archer:4, eco:3, antiCav:3, antiArcher:4, antiInf:2 },
+  "Japanese":       { siege:3, cav:2, mobility:3, archer:3, eco:3, antiCav:4, antiArcher:3, antiInf:4 },
+  "Khmer":          { siege:4, cav:4, mobility:4, archer:3, eco:4, antiCav:3, antiArcher:2, antiInf:3 },
+  "Koreans":        { siege:4, cav:1, mobility:2, archer:5, eco:3, antiCav:3, antiArcher:5, antiInf:2 },
+  "Lithuanians":    { siege:3, cav:5, mobility:4, archer:2, eco:4, antiCav:4, antiArcher:2, antiInf:3 },
+  "Magyars":        { siege:3, cav:5, mobility:5, archer:3, eco:3, antiCav:3, antiArcher:3, antiInf:2 },
+  "Malians":        { siege:3, cav:3, mobility:3, archer:3, eco:4, antiCav:4, antiArcher:3, antiInf:4 },
+  "Maya":           { siege:2, cav:1, mobility:3, archer:5, eco:4, antiCav:3, antiArcher:5, antiInf:2 },
+  "Mongols":        { siege:4, cav:5, mobility:5, archer:4, eco:3, antiCav:3, antiArcher:3, antiInf:2 },
+  "Persians":       { siege:3, cav:5, mobility:4, archer:2, eco:4, antiCav:4, antiArcher:2, antiInf:3 },
+  "Poles":          { siege:3, cav:5, mobility:4, archer:2, eco:4, antiCav:3, antiArcher:2, antiInf:3 },
+  "Portuguese":     { siege:4, cav:2, mobility:3, archer:4, eco:4, antiCav:3, antiArcher:4, antiInf:3 },
+  "Romans":         { siege:4, cav:3, mobility:3, archer:3, eco:3, antiCav:3, antiArcher:3, antiInf:4 },
+  "Saracens":       { siege:4, cav:4, mobility:4, archer:4, eco:3, antiCav:3, antiArcher:3, antiInf:3 },
+  "Sicilians":      { siege:3, cav:4, mobility:3, archer:2, eco:3, antiCav:4, antiArcher:3, antiInf:4 },
+  "Slavs":          { siege:4, cav:4, mobility:3, archer:2, eco:4, antiCav:4, antiArcher:2, antiInf:4 },
+  "Spanish":        { siege:4, cav:4, mobility:3, archer:2, eco:3, antiCav:3, antiArcher:3, antiInf:3 },
+  "Tatars":         { siege:3, cav:5, mobility:5, archer:4, eco:3, antiCav:3, antiArcher:4, antiInf:2 },
+  "Teutons":        { siege:4, cav:3, mobility:2, archer:2, eco:4, antiCav:5, antiArcher:3, antiInf:5 },
+  "Turks":          { siege:4, cav:4, mobility:4, archer:4, eco:3, antiCav:3, antiArcher:4, antiInf:2 },
+  "Vietnamese":     { siege:3, cav:2, mobility:3, archer:4, eco:4, antiCav:3, antiArcher:4, antiInf:3 },
+  "Vikings":        { siege:3, cav:1, mobility:2, archer:3, eco:4, antiCav:4, antiArcher:3, antiInf:4 }
 };
