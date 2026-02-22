@@ -6,7 +6,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const button = document.getElementById("findBtn");
   const resultDiv = document.getElementById("result");
 
-  // Populate dropdown
+  // --- Add Map Style Dropdown Dynamically ---
+  const mapLabel = document.createElement("label");
+  mapLabel.textContent = " Map Style: ";
+
+  const mapSelect = document.createElement("select");
+  mapSelect.id = "mapStyle";
+
+  ["balanced", "choke", "open"].forEach(style => {
+    const option = document.createElement("option");
+    option.value = style;
+    option.textContent =
+      style.charAt(0).toUpperCase() + style.slice(1);
+    mapSelect.appendChild(option);
+  });
+
+  button.parentNode.insertBefore(mapLabel, button);
+  button.parentNode.insertBefore(mapSelect, button);
+
+  // --- Populate Civ Dropdown ---
   Object.keys(civs).forEach(civ => {
     const option = document.createElement("option");
     option.value = civ;
@@ -14,25 +32,25 @@ document.addEventListener("DOMContentLoaded", () => {
     civSelect.appendChild(option);
   });
 
-  // Adjustable weights (this is your AI personality)
+  // --- Adjustable AI Weights ---
   const weights = {
     counterStrength: 3,
     traitAdvantage: 2,
-    mobilityBonus: 1,
-    mapBiasDefense: 1
+    chokeBonus: 2,
+    mobilityBonus: 2
   };
 
-  function scoreCounter(enemy, candidate) {
+  function scoreCounter(enemy, candidate, mapStyle) {
     let score = 0;
 
-    // Strength vs Weakness
+    // 1. Strength vs Weakness
     enemy.weaknesses.forEach(w => {
       if (candidate.strengths.includes(w)) {
         score += weights.counterStrength;
       }
     });
 
-    // Trait advantage (aggressive vs defensive)
+    // 2. Trait Advantage (Defensive counters Aggressive)
     if (
       enemy.traits.includes("aggressive") &&
       candidate.traits.includes("defensive")
@@ -40,17 +58,21 @@ document.addEventListener("DOMContentLoaded", () => {
       score += weights.traitAdvantage;
     }
 
-    // Mobility advantage
-    if (
-      enemy.traits.includes("choke-control") &&
-      candidate.traits.includes("mobile")
-    ) {
-      score += weights.mobilityBonus;
+    // 3. Map Style Bias
+    if (mapStyle === "choke") {
+      if (candidate.traits.includes("defensive"))
+        score += weights.chokeBonus;
+      if (candidate.traits.includes("choke-control"))
+        score += weights.chokeBonus;
     }
 
-    // Map bias (Michi favors defense slightly)
-    if (candidate.traits.includes("defensive")) {
-      score += weights.mapBiasDefense;
+    if (mapStyle === "open") {
+      if (candidate.traits.includes("mobile"))
+        score += weights.mobilityBonus;
+      if (candidate.strengths.includes("cavalry"))
+        score += weights.mobilityBonus;
+      if (candidate.strengths.includes("cavalry-archer"))
+        score += weights.mobilityBonus;
     }
 
     return score;
@@ -59,19 +81,26 @@ document.addEventListener("DOMContentLoaded", () => {
   button.addEventListener("click", () => {
 
     const enemyName = civSelect.value;
+    const mapStyle = mapSelect.value;
     const enemyData = civs[enemyName];
+
+    if (!enemyData) {
+      resultDiv.innerHTML = "<p>No civ data found.</p>";
+      return;
+    }
 
     const ranked = Object.keys(civs)
       .filter(c => c !== enemyName)
       .map(c => ({
         civ: c,
-        score: scoreCounter(enemyData, civs[c])
+        score: scoreCounter(enemyData, civs[c], mapStyle)
       }))
       .sort((a, b) => b.score - a.score)
       .slice(0, 3);
 
     resultDiv.innerHTML = `
       <h3>Top Counter Civs vs ${enemyName}</h3>
+      <p><strong>Map Style:</strong> ${mapStyle}</p>
       <ol>
         ${ranked.map(r => `
           <li>
