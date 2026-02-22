@@ -36,9 +36,9 @@ button {
   cursor: pointer;
 }
 
-#result {
-  margin-top: 25px;
-  padding: 15px;
+.result {
+  margin-top: 12px;
+  padding: 12px;
   background: #020617;
   border-radius: 6px;
 }
