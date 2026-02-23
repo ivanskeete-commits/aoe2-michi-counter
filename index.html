@@ -2,26 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>AOE2 DE 2v2 Counter Picker</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AOE2 Counter Picker</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <h1>AOE2 DE 2v2 Counter Picker</h1>
-  <p class="subtitle">Optimized for: 2v2 • Death Match • Post-Imp • 250-300 pop • Fast speed • Open terrain</p>
+  <h1>AOE2 DE Counter Pair Generator</h1>
 
-  <label>Enemy Civ 1:</label>
-  <select id="enemy1"></select>
+  <div class="controls">
+    <label>Enemy Civ 1:</label>
+    <select id="enemy1"></select>
 
-  <label>Enemy Civ 2:</label>
-  <select id="enemy2"></select>
+    <label>Enemy Civ 2:</label>
+    <select id="enemy2"></select>
 
-  <button id="findBtn">Find Best Counter Pair</button>
+    <button id="suggestBtn">Suggest Counters</button>
+  </div>
 
   <div id="results"></div>
 
-  <script src="civs.js" defer></script>
-  <script src="app.js" defer></script>
+  <!-- IMPORTANT: must be type="module" -->
+  <script type="module" src="app.js"></script>
+
 </body>
 </html>
