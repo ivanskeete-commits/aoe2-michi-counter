@@ -1,110 +1,109 @@
-console.log("app.js loaded");
+import { CIVS } from "./civs.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-  const enemy1 = document.getElementById("enemy1");
-  const enemy2 = document.getElementById("enemy2");
-  const results = document.getElementById("results");
-  const button = document.getElementById("findBtn");
-  const civNames = Object.keys(civs).sort();
+const enemy1 = document.getElementById("enemy1");
+const enemy2 = document.getElementById("enemy2");
+const resultsDiv = document.getElementById("results");
 
-  // Populate dropdowns
-  civNames.forEach(civ => {
-    const opt1 = document.createElement("option");
-    opt1.value = civ;
-    opt1.textContent = civ;
-    enemy1.appendChild(opt1);
+const civNames = Object.keys(CIVS).sort();
 
-    const opt2 = document.createElement("option");
-    opt2.value = civ;
-    opt2.textContent = civ;
-    enemy2.appendChild(opt2);
+// Populate dropdowns alphabetically
+function populateDropdowns() {
+  civNames.forEach(name => {
+    enemy1.add(new Option(name, name));
+    enemy2.add(new Option(name, name));
   });
+}
 
-  // --- NEW OPEN TERRAIN DM SCORING ENGINE ---
-  function scoreCounter(counter, enemy) {
-    const c = civs[counter];
-    const e = civs[enemy];
-    let score = 0;
+populateDropdowns();
 
-    // Reduced pure counter weight (less Byzantine bias)
-    score += c.antiCav * e.cav * 1.0;
-    score += c.antiArcher * e.archer * 1.0;
-    score += c.antiInf * (5 - e.archer) * 0.8;
+function scorePair(civA, civB) {
+  const a = CIVS[civA];
+  const b = CIVS[civB];
 
-    // Increased mobility importance (open terrain)
-    score += c.mobility * 2.2;
+  let score = 0;
+  let breakdown = [];
 
-    // Cavalry strength matters more in DM open maps
-    score += c.cav * 1.8;
+  const mobilityScore = a.mobility + b.mobility;
+  const siegeScore = a.siege + b.siege;
+  const cavScore = a.cav + b.cav;
 
-    // Siege still matters, but not Arena-level
-    score += c.siege * 1.3;
+  score += mobilityScore * 2;
+  breakdown.push(`Mobility bonus: ${mobilityScore * 2}`);
 
-    // Eco matters less in DM start
-    score += c.eco * 0.3;
+  score += siegeScore * 2;
+  breakdown.push(`Siege bonus: ${siegeScore * 2}`);
 
-    // Aggression bonus (mobility + cav synergy)
-    score += (c.mobility + c.cav) * 0.8;
+  score += cavScore;
+  breakdown.push(`Cavalry value: ${cavScore}`);
 
-    return score;
+  // Role balance bonus
+  if (
+    (a.mobility > 2 && b.siege > 2) ||
+    (b.mobility > 2 && a.siege > 2)
+  ) {
+    score += 5;
+    breakdown.push("Role balance bonus: +5");
   }
 
-  // Small synergy bonus for aggressive 2v2 comps
-  function pairSynergy(c1, c2) {
-    const a = civs[c1];
-    const b = civs[c2];
-    let synergy = 0;
-
-    // Mobility pairing bonus
-    synergy += (a.mobility + b.mobility) * 0.5;
-
-    // Siege + mobility combo bonus
-    synergy += (a.siege * b.mobility) * 0.2;
-
-    // Cav + archer pairing bonus
-    synergy += (a.cav * b.archer) * 0.2;
-
-    return synergy;
+  // Prevent double heavy cav stacking
+  if (a.cav >= 3 && b.cav >= 3) {
+    score -= 6;
+    breakdown.push("Double heavy cav penalty: -6");
   }
 
-  function findCounters() {
-  const e1 = enemy1.value;
-  const e2 = enemy2.value;
-  const resultsArr = [];
+  return { score, breakdown };
+}
 
-  // Generate UNIQUE unordered pairs
+function generatePairs() {
+  const pairs = [];
+
   for (let i = 0; i < civNames.length; i++) {
     for (let j = i + 1; j < civNames.length; j++) {
+      const civA = civNames[i];
+      const civB = civNames[j];
 
-      const c1 = civNames[i];
-      const c2 = civNames[j];
+      const { score, breakdown } = scorePair(civA, civB);
 
-      let total =
-        scoreCounter(c1, e1) +
-        scoreCounter(c1, e2) +
-        scoreCounter(c2, e1) +
-        scoreCounter(c2, e2);
-
-      total += pairSynergy(c1, c2);
-
-      resultsArr.push({ pair: c1 + " + " + c2, score: total });
+      pairs.push({
+        pair: `${civA} + ${civB}`,
+        civA,
+        civB,
+        score,
+        breakdown
+      });
     }
   }
 
-  resultsArr.sort((a,b)=>b.score-a.score);
+  pairs.sort((a, b) => b.score - a.score);
 
-  let output = "<h3>Top 5 Primary Counter Pairs</h3>";
-  for (let i=0;i<5;i++){
-    output += `<div class="result">${resultsArr[i].pair}<br>Score: ${Math.round(resultsArr[i].score)}</div>`;
-  }
-
-  output += "<h3>Top 3 Alternative Combos</h3>";
-  for (let i=5;i<8;i++){
-    output += `<div class="result">${resultsArr[i].pair}<br>Score: ${Math.round(resultsArr[i].score)}</div>`;
-  }
-
-  results.innerHTML = output;
+  return pairs;
 }
 
-  button.addEventListener("click", findCounters);
-});
+function displayResults() {
+  const pairs = generatePairs();
+
+  const top5 = pairs.slice(0, 5);
+  const alt3 = pairs.slice(5, 8);
+
+  let html = "<h3>Top 5 Primary Counter Pairs</h3>";
+  top5.forEach(p => {
+    html += `
+      <p><strong>${p.pair}</strong> (Score: ${p.score})<br>
+      ${p.breakdown.join("<br>")}
+      </p>
+    `;
+  });
+
+  html += "<h3>Top 3 Alternative Combos</h3>";
+  alt3.forEach(p => {
+    html += `
+      <p><strong>${p.pair}</strong> (Score: ${p.score})<br>
+      ${p.breakdown.join("<br>")}
+      </p>
+    `;
+  });
+
+  resultsDiv.innerHTML = html;
+}
+
+document.getElementById("suggestBtn").addEventListener("click", displayResults);
