@@ -1,157 +1,106 @@
 import { CIVS } from "./civs.js";
 
-const enemy1Select = document.getElementById("enemy1");
-const enemy2Select = document.getElementById("enemy2");
+const enemy1 = document.getElementById("enemy1");
+const enemy2 = document.getElementById("enemy2");
 const resultsDiv = document.getElementById("results");
 const civNames = Object.keys(CIVS).sort();
 
-function populateDropdowns() {
-  civNames.forEach(name => {
-    enemy1Select.add(new Option(name, name));
-    enemy2Select.add(new Option(name, name));
+function populate() {
+  civNames.forEach(c => {
+    enemy1.add(new Option(c, c));
+    enemy2.add(new Option(c, c));
   });
 }
+populate();
 
-populateDropdowns();
-
-function getEnemyProfile(civName) {
-  return CIVS[civName];
-}
-
-function scorePair(civA, civB, enemy1, enemy2) {
-  const a = CIVS[civA];
-  const b = CIVS[civB];
+function scorePair(aName, bName, e1Name, e2Name) {
+  const a = CIVS[aName];
+  const b = CIVS[bName];
+  const e1 = CIVS[e1Name];
+  const e2 = CIVS[e2Name];
 
   let score = 0;
   let breakdown = [];
 
-  // Base strength
-  const mobilityScore = a.mobility + b.mobility;
-  const siegeScore = a.siege + b.siege;
-  const cavScore = a.cav + b.cav;
+  // Core DM weighting
+  const lateScore = (a.late + b.late) * 3;
+  const popScore = (a.pop + b.pop) * 3;
+  const siegeScore = (a.siege + b.siege) * 2;
+  const deathballScore = (a.deathball + b.deathball) * 3;
+  const goldScore = (a.goldEff + b.goldEff) * 2;
 
-  score += mobilityScore * 2;
-  score += siegeScore * 2;
-  score += cavScore;
+  score += lateScore + popScore + siegeScore + deathballScore + goldScore;
 
-  breakdown.push(`Mobility: ${mobilityScore * 2}`);
-  breakdown.push(`Siege: ${siegeScore * 2}`);
-  breakdown.push(`Cavalry value: ${cavScore}`);
+  breakdown.push(`Late scaling: ${lateScore}`);
+  breakdown.push(`Pop efficiency: ${popScore}`);
+  breakdown.push(`Siege power: ${siegeScore}`);
+  breakdown.push(`Deathball: ${deathballScore}`);
+  breakdown.push(`Gold efficiency: ${goldScore}`);
 
-  // Enemy counter logic
-  const enemies = [enemy1, enemy2];
-
-  enemies.forEach(enemy => {
-    if (enemy.cav >= 3) {
-      // Heavy cav enemy → reward infantry/siege
-      const antiCav = a.siege + b.siege;
-      score += antiCav * 2;
-      breakdown.push(`Anti-cav vs ${enemy}: +${antiCav * 2}`);
-    }
-
-    if (enemy.mobility >= 3) {
-      // High mobility enemy → reward own mobility
-      score += mobilityScore * 1.5;
-      breakdown.push(`Mobility vs ${enemy}: +${mobilityScore * 1.5}`);
-    }
-
-    if (enemy.siege >= 3) {
-      // Heavy siege enemy → reward mobility civ
-      score += mobilityScore * 2;
-      breakdown.push(`Anti-siege mobility vs ${enemy}: +${mobilityScore * 2}`);
-    }
-  });
-
-  // Role balance bonus
-  if (
-    (a.mobility > 2 && b.siege > 2) ||
-    (b.mobility > 2 && a.siege > 2)
-  ) {
-    score += 5;
-    breakdown.push("Role balance bonus: +5");
+  // Counter heavy cav
+  if (e1.cav >= 9 || e2.cav >= 9) {
+    const antiCav = a.siege + b.siege;
+    score += antiCav * 3;
+    breakdown.push(`Anti-cav bonus: ${antiCav * 3}`);
   }
 
-  // Prevent double heavy cav stacking
-  if (a.cav >= 3 && b.cav >= 3) {
-    score -= 8;
-    breakdown.push("Double heavy cav penalty: -8");
+  // Reward cav + siege combo
+  if ((a.cav >= 8 && b.siege >= 8) || (b.cav >= 8 && a.siege >= 8)) {
+    score += 25;
+    breakdown.push("Cav + Siege synergy: +25");
   }
 
-  return { score: Math.round(score), breakdown };
+  // Prevent double pure cav spam
+  if (a.cav >= 9 && b.cav >= 9) {
+    score -= 30;
+    breakdown.push("Double heavy cav penalty: -30");
+  }
+
+  return { score, breakdown };
 }
 
-function generatePairs(enemy1Name, enemy2Name) {
-  const enemy1 = getEnemyProfile(enemy1Name);
-  const enemy2 = getEnemyProfile(enemy2Name);
-
+function generate(e1, e2) {
   const pairs = [];
 
   for (let i = 0; i < civNames.length; i++) {
     for (let j = i + 1; j < civNames.length; j++) {
-      const civA = civNames[i];
-      const civB = civNames[j];
 
-      // Do not allow picking enemy civs as counters
-      if (civA === enemy1Name || civA === enemy2Name) continue;
-      if (civB === enemy1Name || civB === enemy2Name) continue;
+      const c1 = civNames[i];
+      const c2 = civNames[j];
 
-      const { score, breakdown } = scorePair(
-        civA,
-        civB,
-        enemy1,
-        enemy2
-      );
+      if (c1 === e1 || c1 === e2) continue;
+      if (c2 === e1 || c2 === e2) continue;
 
-      pairs.push({
-        pair: `${civA} + ${civB}`,
-        score,
-        breakdown
-      });
+      const { score, breakdown } = scorePair(c1, c2, e1, e2);
+
+      pairs.push({ pair: `${c1} + ${c2}`, score, breakdown });
     }
   }
 
   pairs.sort((a, b) => b.score - a.score);
-
   return pairs;
 }
 
-function displayResults() {
-  const enemy1 = enemy1Select.value;
-  const enemy2 = enemy2Select.value;
+function display() {
 
-  if (!enemy1 || !enemy2 || enemy1 === enemy2) {
-    resultsDiv.innerHTML = "<p>Please select two different enemy civs.</p>";
+  const e1 = enemy1.value;
+  const e2 = enemy2.value;
+
+  if (!e1 || !e2 || e1 === e2) {
+    resultsDiv.innerHTML = "Select two different enemy civs.";
     return;
   }
 
-  const pairs = generatePairs(enemy1, enemy2);
+  const pairs = generate(e1, e2);
 
-  const top5 = pairs.slice(0, 5);
-  const alt3 = pairs.slice(5, 8);
+  let html = `<h3>Countering ${e1} + ${e2}</h3>`;
 
-  let html = `<h3>Countering ${enemy1} + ${enemy2}</h3>`;
-
-  html += "<h3>Top 5 Primary Counter Pairs</h3>";
-  top5.forEach(p => {
-    html += `
-      <p><strong>${p.pair}</strong> (Score: ${p.score})<br>
-      ${p.breakdown.join("<br>")}
-      </p>
-    `;
-  });
-
-  html += "<h3>Top 3 Alternative Combos</h3>";
-  alt3.forEach(p => {
-    html += `
-      <p><strong>${p.pair}</strong> (Score: ${p.score})<br>
-      ${p.breakdown.join("<br>")}
-      </p>
-    `;
+  pairs.slice(0, 5).forEach(p => {
+    html += `<p><strong>${p.pair}</strong> (Score: ${p.score})<br>
+    ${p.breakdown.join("<br>")}</p>`;
   });
 
   resultsDiv.innerHTML = html;
 }
 
-document
-  .getElementById("suggestBtn")
-  .addEventListener("click", displayResults);
+document.getElementById("suggestBtn").addEventListener("click", display);
