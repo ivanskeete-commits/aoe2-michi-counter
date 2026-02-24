@@ -157,4 +157,5 @@ window.onload = function() {
                     if ((a.siege >= 9 && b.pop >= 9) || (b.siege >= 9 && a.pop >= 9)) score += 50;
                     if (civA === "Spanish" || civB === "Spanish") score += 60;
 
-                    const pairGames = history.filter(
+                    const pairGames = history.filter(g => 
+                        (g.ally1 === civA &&
