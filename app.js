@@ -139,7 +139,6 @@ function scorePair(civA, civB, enemy1, enemy2) {
 
   return score;
 }
-
 /* ==============================
    GENERATE SUGGESTIONS
 ============================== */
