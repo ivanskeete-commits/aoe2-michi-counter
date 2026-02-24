@@ -25,27 +25,19 @@ function populateDropdown(select) {
 
 [enemy1Select, enemy2Select, ally1Select, ally2Select].forEach(populateDropdown);
 
-/**
- * NEW: Badge Helper (Option C)
- * Replaces broken images with a text-based shield badge.
- */
-function getBadgeHTML(civName) {
-  const initials = civName.substring(0, 2).toUpperCase();
-  return `<span class="civ-badge">${initials}</span>`;
-}
-
 /* HISTORY LOGIC */
 function getHistory() { return JSON.parse(localStorage.getItem("matchHistory")) || []; }
 function saveHistory(h) { localStorage.setItem("matchHistory", JSON.stringify(h)); }
 
 function renderHistory() {
   const history = getHistory().reverse();
+  // Removed all Badge/Icon HTML tags here
   historyTableBody.innerHTML = history.slice(0, 8).map(g => `
     <tr>
-      <td>${getBadgeHTML(g.enemy1)} ${g.enemy1}</td>
-      <td>${getBadgeHTML(g.enemy2)} ${g.enemy2}</td>
-      <td>${getBadgeHTML(g.ally1)} ${g.ally1}</td>
-      <td>${getBadgeHTML(g.ally2)} ${g.ally2}</td>
+      <td><strong>${g.enemy1}</strong></td>
+      <td><strong>${g.enemy2}</strong></td>
+      <td><strong>${g.ally1}</strong></td>
+      <td><strong>${g.ally2}</strong></td>
       <td class="${g.result}-text">${g.result.toUpperCase()}</td>
       <td>${new Date(g.timestamp).toLocaleDateString()}</td>
     </tr>
@@ -57,7 +49,7 @@ function renderHistory() {
 function renderStats() {
   const history = getHistory();
   if (history.length === 0) {
-    statsContainer.innerHTML = `<p style="text-align:center; font-style:italic; width:100%;">No data yet. Log games to see your best civs!</p>`;
+    statsContainer.innerHTML = `<p style="text-align:center; font-style:italic; width:100%;">No data yet.</p>`;
     return;
   }
 
@@ -75,9 +67,10 @@ function renderStats() {
     .sort((a, b) => b.wins - a.wins || b.winRate - a.winRate)
     .slice(0, 3);
 
+  // Removed Badge HTML from stats boxes
   statsContainer.innerHTML = sortedStats.map(s => `
     <div class="stat-box">
-      ${getBadgeHTML(s.name)}<br>
+      <div style="color: var(--aoe-gold); font-size: 0.8rem; font-weight: bold;">TOP CIV</div>
       <strong>${s.name}</strong><br>
       <span class="win-text">${s.wins} Wins</span> (${s.winRate}%)
     </div>
@@ -93,7 +86,7 @@ logBtn.addEventListener("click", () => {
   });
   saveHistory(history);
   renderHistory();
-  alert("Match recorded.");
+  console.log("Match recorded.");
 });
 
 clearBtn.addEventListener("click", () => {
@@ -125,30 +118,29 @@ document.getElementById("suggestBtn").addEventListener("click", () => {
       const a = CIVS[civA], b = CIVS[civB];
       let score = (a.late + b.late) * 3 + (a.goldEff + b.goldEff) * 2;
       
-      // Cav/Siege Synergy
       if ((a.cav >= 8 && b.siege >= 8) || (b.cav >= 8 && a.siege >= 8)) score += 25;
       
       score += calculateLearningAdjustment(civA, civB, e1, e2);
-      
       pairs.push({ civA, civB, score });
     }
   }
   pairs.sort((a, b) => b.score - a.score);
   
+  // Results cards now only show text
   resultsDiv.innerHTML = pairs.slice(0, 5).map((p, i) => `
     <div class="result-card">
       <div class="card-header">
         <div class="pair-names">
-          ${getBadgeHTML(p.civA)} <strong>${p.civA}</strong>
+          <strong>${p.civA}</strong>
           <span style="color: #888;">&</span>
-          ${getBadgeHTML(p.civB)} <strong>${p.civB}</strong>
+          <strong>${p.civB}</strong>
         </div>
         <button class="btn btn-orange" style="font-size:10px; padding:2px 8px;" onclick="const el=document.getElementById('det-${i}'); el.style.display=el.style.display==='block'?'none':'block'">Details ▾</button>
       </div>
       <div id="det-${i}" class="details-pane">
         <div class="stat-row">Late Scaling: <span class="stat-plus">+${CIVS[p.civA].late + CIVS[p.civB].late}</span></div>
         <div class="stat-row">Gold Efficiency: <span class="stat-plus">+${CIVS[p.civA].goldEff + CIVS[p.civB].goldEff}</span></div>
-        <div class="stat-row">Learning Bonus: <span class="stat-plus">${calculateLearningAdjustment(p.civA, p.civB, e1, e2)}</span></div>
+        <div class="stat-row">Matchup XP: <span class="stat-plus">${calculateLearningAdjustment(p.civA, p.civB, e1, e2)}</span></div>
       </div>
     </div>
   `).join("");
