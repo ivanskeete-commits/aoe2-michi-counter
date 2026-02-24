@@ -1,75 +1,125 @@
+/* Custom Font (Trajan is the AoE standard) */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
+
+:root {
+  --aoe-gold: #b19355;
+  --aoe-gold-bright: #ffd700;
+  --aoe-parchment: #e8d5b5;
+  --aoe-text: #2a1f16;
+  --aoe-blue-gradient: linear-gradient(to bottom, #2c5a8a, #1a3a5a);
+  --aoe-green-gradient: linear-gradient(to bottom, #4a7c44, #2d5a27);
+  --aoe-card-bg: #d9c5a3;
+}
+
 body, html {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
-  height: 100%;
+  margin: 0; padding: 0;
+  background-color: #000;
+  font-family: 'Cinzel', serif; /* Gives that medieval feel */
 }
 
+/* Container to match the 800px-ish width of the image */
 .background-container {
-  position: relative;
-  width: 100%;
-  min-height: 100vh;
-}
-
-.bg-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 0;
+  max-width: 900px;
+  margin: 20px auto;
+  border: 3px solid var(--aoe-gold);
+  box-shadow: 0 0 30px rgba(0,0,0,0.8);
+  overflow: hidden;
 }
 
 .overlay {
-  position: relative;
-  z-index: 1;
-  background: rgba(0, 0, 0, 0.6);
-  color: #fff;
-  padding: 20px;
-  min-height: 100vh;
+  background-color: var(--aoe-parchment);
+  background-image: url('https://www.transparenttextures.com/patterns/pinstriped-suit.png'); /* Subtle paper texture */
+  color: var(--aoe-text);
+  padding: 0;
 }
+
+/* Header with the Hero Image */
+h1 {
+  background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), 
+              url('https://images8.alphacoders.com/105/1053245.jpg');
+  background-size: cover;
+  background-position: center;
+  margin: 0;
+  padding: 60px 20px;
+  text-align: center;
+  color: white;
+  text-transform: uppercase;
+  border-bottom: 4px solid var(--aoe-gold);
+  text-shadow: 2px 2px 4px #000;
+}
+
+/* Section Headers (the "Select Matchup" text) */
+.section-title {
+  text-align: center;
+  border-bottom: 2px solid #c4a47c;
+  line-height: 0.1em;
+  margin: 25px 20px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+.section-title span { background: var(--aoe-parchment); padding: 0 15px; }
 
 .controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.controls div {
-  display: flex;
-  flex-direction: column;
-}
-
-select, button {
-  padding: 5px;
-  font-size: 1rem;
-}
-
-button {
-  cursor: pointer;
-  margin-top: 5px;
-  background: #d4af37;
-  border: none;
-  color: black;
-  font-weight: bold;
-  transition: 0.2s;
-}
-
-button:hover {
-  background: #ffdd55;
-}
-
-#results {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 10px;
+  padding: 20px;
 }
 
-.result-card {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 10px;
-  border-radius: 8px;
-  backdrop-filter: blur(5px);
+select {
+  background: #fdf6e3;
+  border: 2px solid var(--aoe-gold);
+  padding: 6px;
+  font-family: inherit;
+  color: var(--aoe-text);
 }
+
+/* Beveled Buttons */
+button {
+  border: 2px solid var(--aoe-gold-bright);
+  color: white;
+  text-shadow: 1px 1px 2px #000;
+  padding: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+#suggestBtn { 
+  background: var(--aoe-blue-gradient); 
+  width: calc(100% - 40px);
+  margin: 0 20px 20px 20px;
+}
+
+#logBtn { background: var(--aoe-green-gradient); }
+
+/* Result Cards */
+.result-card {
+  background: var(--aoe-card-bg);
+  margin: 5px 20px;
+  border: 1px solid var(--aoe-gold);
+  padding: 0;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+}
+
+.details-btn {
+  background: #8d6e43;
+  font-size: 0.7rem;
+  padding: 4px 8px;
+}
+
+.details-content {
+  padding: 10px 40px;
+  background: rgba(0,0,0,0.05);
+  border-top: 1px solid rgba(0,0,0,0.1);
+  font-size: 0.9rem;
+}
+
+.stat-row { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(0,0,0,0.05); margin-bottom: 4px;}
+.stat-val { color: #1e7d1e; font-weight: bold; }
