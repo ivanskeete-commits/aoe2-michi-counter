@@ -4,11 +4,8 @@ const enemy1Select = document.getElementById("enemy1");
 const enemy2Select = document.getElementById("enemy2");
 const resultsDiv = document.getElementById("results");
 
-// Convert CIVS object into an array for dropdowns
+// Populate dropdowns
 const civNames = Object.keys(CIVS).sort();
-
-// Populate enemy dropdowns
-[civNames, enemy1Select, enemy2Select].forEach(() => {});
 function populateDropdown(select) {
   civNames.forEach(civ => {
     const option = document.createElement("option");
@@ -20,10 +17,7 @@ function populateDropdown(select) {
 populateDropdown(enemy1Select);
 populateDropdown(enemy2Select);
 
-/* ==============================
-   SCORING LOGIC
-============================== */
-
+// Score function
 function scorePair(civA, civB, enemy1, enemy2) {
   const a = CIVS[civA];
   const b = CIVS[civB];
@@ -35,7 +29,6 @@ function scorePair(civA, civB, enemy1, enemy2) {
   let score = 0;
   let breakdown = [];
 
-  // Base scoring
   const lateScore = (a.late + b.late) * 3;
   const popScore = (a.pop + b.pop) * 3;
   const siegeScore = (a.siege + b.siege) * 2;
@@ -71,10 +64,7 @@ function scorePair(civA, civB, enemy1, enemy2) {
   return { score, breakdown };
 }
 
-/* ==============================
-   GENERATE SUGGESTIONS
-============================== */
-
+// Generate top suggestions
 document.getElementById("suggestBtn").addEventListener("click", () => {
   const e1 = enemy1Select.value;
   const e2 = enemy2Select.value;
@@ -85,7 +75,6 @@ document.getElementById("suggestBtn").addEventListener("click", () => {
   }
 
   const pairs = [];
-
   for (let i = 0; i < civNames.length; i++) {
     for (let j = i + 1; j < civNames.length; j++) {
       const c1 = civNames[i];
@@ -101,7 +90,6 @@ document.getElementById("suggestBtn").addEventListener("click", () => {
   pairs.sort((a, b) => b.score - a.score);
 
   const top = pairs.slice(0, 5);
-
   resultsDiv.innerHTML = `<h3>Countering ${e1} + ${e2}</h3>` +
     top.map(p => `<p><strong>${p.pair}</strong> (Score: ${p.score})<br>${p.breakdown.join("<br>")}</p>`).join("");
 });
