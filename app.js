@@ -25,11 +25,13 @@ function populateDropdown(select) {
 
 [enemy1Select, enemy2Select, ally1Select, ally2Select].forEach(populateDropdown);
 
-// Updated Icon Helper to prevent "Blank Squares"
-function getIconHTML(civName, cssClass = "civ-icon") {
-  const civ = CIVS[civName];
-  if (!civ || !civ.icon) return `<span class="${cssClass}">🛡️</span>`;
-  return `<img src="${civ.icon}" class="${cssClass}" alt="${civName}" onerror="this.outerHTML='🛡️'">`;
+/**
+ * NEW: Badge Helper (Option C)
+ * Replaces broken images with a text-based shield badge.
+ */
+function getBadgeHTML(civName) {
+  const initials = civName.substring(0, 2).toUpperCase();
+  return `<span class="civ-badge">${initials}</span>`;
 }
 
 /* HISTORY LOGIC */
@@ -40,10 +42,10 @@ function renderHistory() {
   const history = getHistory().reverse();
   historyTableBody.innerHTML = history.slice(0, 8).map(g => `
     <tr>
-      <td>${getIconHTML(g.enemy1)} ${g.enemy1}</td>
-      <td>${getIconHTML(g.enemy2)} ${g.enemy2}</td>
-      <td>${getIconHTML(g.ally1)} ${g.ally1}</td>
-      <td>${getIconHTML(g.ally2)} ${g.ally2}</td>
+      <td>${getBadgeHTML(g.enemy1)} ${g.enemy1}</td>
+      <td>${getBadgeHTML(g.enemy2)} ${g.enemy2}</td>
+      <td>${getBadgeHTML(g.ally1)} ${g.ally1}</td>
+      <td>${getBadgeHTML(g.ally2)} ${g.ally2}</td>
       <td class="${g.result}-text">${g.result.toUpperCase()}</td>
       <td>${new Date(g.timestamp).toLocaleDateString()}</td>
     </tr>
@@ -55,7 +57,7 @@ function renderHistory() {
 function renderStats() {
   const history = getHistory();
   if (history.length === 0) {
-    statsContainer.innerHTML = `<p style="text-align:center; font-style:italic; width:100%;">No data yet.</p>`;
+    statsContainer.innerHTML = `<p style="text-align:center; font-style:italic; width:100%;">No data yet. Log games to see your best civs!</p>`;
     return;
   }
 
@@ -75,7 +77,7 @@ function renderStats() {
 
   statsContainer.innerHTML = sortedStats.map(s => `
     <div class="stat-box">
-      ${getIconHTML(s.name)}<br>
+      ${getBadgeHTML(s.name)}<br>
       <strong>${s.name}</strong><br>
       <span class="win-text">${s.wins} Wins</span> (${s.winRate}%)
     </div>
@@ -91,6 +93,7 @@ logBtn.addEventListener("click", () => {
   });
   saveHistory(history);
   renderHistory();
+  alert("Match recorded.");
 });
 
 clearBtn.addEventListener("click", () => {
@@ -119,10 +122,12 @@ document.getElementById("suggestBtn").addEventListener("click", () => {
       const civA = civNames[i], civB = civNames[j];
       if ([e1, e2].includes(civA) || [e1, e2].includes(civB)) continue;
       
-      // Basic scoring logic
       const a = CIVS[civA], b = CIVS[civB];
       let score = (a.late + b.late) * 3 + (a.goldEff + b.goldEff) * 2;
+      
+      // Cav/Siege Synergy
       if ((a.cav >= 8 && b.siege >= 8) || (b.cav >= 8 && a.siege >= 8)) score += 25;
+      
       score += calculateLearningAdjustment(civA, civB, e1, e2);
       
       pairs.push({ civA, civB, score });
@@ -134,15 +139,16 @@ document.getElementById("suggestBtn").addEventListener("click", () => {
     <div class="result-card">
       <div class="card-header">
         <div class="pair-names">
-          ${getIconHTML(p.civA)} <strong>${p.civA}</strong>
-          <span>&</span>
-          ${getIconHTML(p.civB)} <strong>${p.civB}</strong>
+          ${getBadgeHTML(p.civA)} <strong>${p.civA}</strong>
+          <span style="color: #888;">&</span>
+          ${getBadgeHTML(p.civB)} <strong>${p.civB}</strong>
         </div>
         <button class="btn btn-orange" style="font-size:10px; padding:2px 8px;" onclick="const el=document.getElementById('det-${i}'); el.style.display=el.style.display==='block'?'none':'block'">Details ▾</button>
       </div>
       <div id="det-${i}" class="details-pane">
-        <div class="stat-row">Scaling: <span class="stat-plus">+${CIVS[p.civA].late + CIVS[p.civB].late}</span></div>
-        <div class="stat-row">Gold: <span class="stat-plus">+${CIVS[p.civA].goldEff + CIVS[p.civB].goldEff}</span></div>
+        <div class="stat-row">Late Scaling: <span class="stat-plus">+${CIVS[p.civA].late + CIVS[p.civB].late}</span></div>
+        <div class="stat-row">Gold Efficiency: <span class="stat-plus">+${CIVS[p.civA].goldEff + CIVS[p.civB].goldEff}</span></div>
+        <div class="stat-row">Learning Bonus: <span class="stat-plus">${calculateLearningAdjustment(p.civA, p.civB, e1, e2)}</span></div>
       </div>
     </div>
   `).join("");
