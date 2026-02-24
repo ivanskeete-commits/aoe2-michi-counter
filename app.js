@@ -1,162 +1,100 @@
-import { civs } from "./civs.js";
-
-/* ==============================
-   INITIALIZE DROPDOWNS
-============================== */
+import { CIVS } from "./civs.js";
 
 const enemy1Select = document.getElementById("enemy1");
 const enemy2Select = document.getElementById("enemy2");
-const ally1Select = document.getElementById("ally1");
-const ally2Select = document.getElementById("ally2");
 const resultsDiv = document.getElementById("results");
 
+// Convert CIVS object into an array for dropdowns
+const civNames = Object.keys(CIVS).sort();
+
+// Populate enemy dropdowns
+[civNames, enemy1Select, enemy2Select].forEach(() => {});
 function populateDropdown(select) {
-  civs.forEach(civ => {
+  civNames.forEach(civ => {
     const option = document.createElement("option");
-    option.value = civ.name;
-    option.textContent = civ.name;
+    option.value = civ;
+    option.textContent = civ;
     select.appendChild(option);
   });
 }
-
 populateDropdown(enemy1Select);
 populateDropdown(enemy2Select);
-if (ally1Select) populateDropdown(ally1Select);
-if (ally2Select) populateDropdown(ally2Select);
-
-/* ==============================
-   MATCH HISTORY STORAGE
-============================== */
-
-function getHistory() {
-  return JSON.parse(localStorage.getItem("matchHistory")) || [];
-}
-
-function saveHistory(history) {
-  localStorage.setItem("matchHistory", JSON.stringify(history));
-}
-
-/* ==============================
-   LOG GAME RESULT
-============================== */
-
-const logBtn = document.getElementById("logBtn");
-
-if (logBtn) {
-  logBtn.addEventListener("click", () => {
-    const entry = {
-      enemy1: enemy1Select.value,
-      enemy2: enemy2Select.value,
-      ally1: ally1Select.value,
-      ally2: ally2Select.value,
-      result: document.getElementById("gameResult").value,
-      timestamp: Date.now()
-    };
-
-    const history = getHistory();
-    history.push(entry);
-    saveHistory(history);
-
-    alert("Game logged.");
-  });
-}
-
-/* ==============================
-   LEARNING SYSTEM
-============================== */
-
-// CONFIGURABLE PARAMETERS
-const MAX_LEARNING_BONUS = 25;     // hard cap
-const DECAY_HALF_LIFE_DAYS = 30;   // older games weaken after 30 days
-
-function calculateLearningAdjustment(civA, civB, enemy1, enemy2) {
-  const history = getHistory();
-
-  const now = Date.now();
-  const halfLifeMs = DECAY_HALF_LIFE_DAYS * 24 * 60 * 60 * 1000;
-
-  let weightedWins = 0;
-  let weightedTotal = 0;
-
-  history.forEach(game => {
-    const sameMatchup =
-      game.enemy1 === enemy1 &&
-      game.enemy2 === enemy2 &&
-      (
-        (game.ally1 === civA && game.ally2 === civB) ||
-        (game.ally1 === civB && game.ally2 === civA)
-      );
-
-    if (!sameMatchup) return;
-
-    const age = now - game.timestamp;
-    const decayFactor = Math.pow(0.5, age / halfLifeMs); // exponential decay
-
-    weightedTotal += decayFactor;
-    if (game.result === "win") {
-      weightedWins += decayFactor;
-    }
-  });
-
-  if (weightedTotal === 0) return 0;
-
-  const winRate = weightedWins / weightedTotal;
-
-  // Neutral at 50%
-  let bonus = (winRate - 0.5) * 50;
-
-  // Cap to prevent runaway bias
-  bonus = Math.max(-MAX_LEARNING_BONUS, Math.min(MAX_LEARNING_BONUS, bonus));
-
-  return bonus;
-}
 
 /* ==============================
    SCORING LOGIC
 ============================== */
 
 function scorePair(civA, civB, enemy1, enemy2) {
+  const a = CIVS[civA];
+  const b = CIVS[civB];
+  const e1 = CIVS[enemy1];
+  const e2 = CIVS[enemy2];
+
+  if (!a || !b || !e1 || !e2) return 0;
+
   let score = 0;
+  let breakdown = [];
 
-  const civObjA = civs.find(c => c.name === civA);
-  const civObjB = civs.find(c => c.name === civB);
-  const enemyObj1 = civs.find(c => c.name === enemy1);
-  const enemyObj2 = civs.find(c => c.name === enemy2);
+  // Base scoring
+  const lateScore = (a.late + b.late) * 3;
+  const popScore = (a.pop + b.pop) * 3;
+  const siegeScore = (a.siege + b.siege) * 2;
+  const deathballScore = (a.deathball + b.deathball) * 3;
+  const goldScore = (a.goldEff + b.goldEff) * 2;
 
-  if (!civObjA || !civObjB || !enemyObj1 || !enemyObj2) return 0;
+  score += lateScore + popScore + siegeScore + deathballScore + goldScore;
+  breakdown.push(`Late scaling: ${lateScore}`);
+  breakdown.push(`Pop efficiency: ${popScore}`);
+  breakdown.push(`Siege power: ${siegeScore}`);
+  breakdown.push(`Deathball: ${deathballScore}`);
+  breakdown.push(`Gold efficiency: ${goldScore}`);
 
-  // BASE COUNTER LOGIC
-  score += civObjA.counters?.includes(enemy1) ? 15 : 0;
-  score += civObjA.counters?.includes(enemy2) ? 15 : 0;
-  score += civObjB.counters?.includes(enemy1) ? 15 : 0;
-  score += civObjB.counters?.includes(enemy2) ? 15 : 0;
+  // Anti-heavy cav bonus
+  if (e1.cav >= 9 || e2.cav >= 9) {
+    const antiCav = a.siege + b.siege;
+    score += antiCav * 3;
+    breakdown.push(`Anti-cav bonus: ${antiCav * 3}`);
+  }
 
-  // ANTI-SAME CIV PENALTY
-  if (civA === civB) score -= 10;
+  // Cav + Siege synergy
+  if ((a.cav >= 8 && b.siege >= 8) || (b.cav >= 8 && a.siege >= 8)) {
+    score += 25;
+    breakdown.push("Cav + Siege synergy: +25");
+  }
 
-  // LEARNING ADJUSTMENT
-  score += calculateLearningAdjustment(civA, civB, enemy1, enemy2);
+  // Double heavy cav penalty
+  if (a.cav >= 9 && b.cav >= 9) {
+    score -= 30;
+    breakdown.push("Double heavy cav penalty: -30");
+  }
 
-  return score;
+  return { score, breakdown };
 }
+
 /* ==============================
    GENERATE SUGGESTIONS
 ============================== */
 
 document.getElementById("suggestBtn").addEventListener("click", () => {
-  const enemy1 = enemy1Select.value;
-  const enemy2 = enemy2Select.value;
+  const e1 = enemy1Select.value;
+  const e2 = enemy2Select.value;
+
+  if (!e1 || !e2 || e1 === e2) {
+    resultsDiv.innerHTML = "Select two different enemy civs.";
+    return;
+  }
 
   const pairs = [];
 
-  for (let i = 0; i < civs.length; i++) {
-    for (let j = i + 1; j < civs.length; j++) {
-      const civA = civs[i].name;
-      const civB = civs[j].name;
+  for (let i = 0; i < civNames.length; i++) {
+    for (let j = i + 1; j < civNames.length; j++) {
+      const c1 = civNames[i];
+      const c2 = civNames[j];
 
-      const score = scorePair(civA, civB, enemy1, enemy2);
+      if (c1 === e1 || c1 === e2 || c2 === e1 || c2 === e2) continue;
 
-      pairs.push({ civA, civB, score });
+      const { score, breakdown } = scorePair(c1, c2, e1, e2);
+      pairs.push({ pair: `${c1} + ${c2}`, score, breakdown });
     }
   }
 
@@ -164,13 +102,6 @@ document.getElementById("suggestBtn").addEventListener("click", () => {
 
   const top = pairs.slice(0, 5);
 
-  resultsDiv.innerHTML = `
-    <h3>Top Suggestions</h3>
-    ${top
-      .map(
-        pair =>
-          `<div>${pair.civA} + ${pair.civB} — Score: ${pair.score.toFixed(1)}</div>`
-      )
-      .join("")}
-  `;
+  resultsDiv.innerHTML = `<h3>Countering ${e1} + ${e2}</h3>` +
+    top.map(p => `<p><strong>${p.pair}</strong> (Score: ${p.score})<br>${p.breakdown.join("<br>")}</p>`).join("");
 });
