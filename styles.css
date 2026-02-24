@@ -1,9 +1,34 @@
-body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  height: 100%;
 }
 
-h1 { margin-bottom: 20px; }
+.background-container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+.overlay {
+  position: relative;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  padding: 20px;
+  min-height: 100vh;
+}
 
 .controls {
   display: flex;
@@ -17,12 +42,34 @@ h1 { margin-bottom: 20px; }
   flex-direction: column;
 }
 
-.controls label {
+select, button {
+  padding: 5px;
+  font-size: 1rem;
+}
+
+button {
+  cursor: pointer;
+  margin-top: 5px;
+  background: #d4af37;
+  border: none;
+  color: black;
   font-weight: bold;
-  margin-bottom: 5px;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #ffdd55;
 }
 
 #results {
-  border-top: 1px solid #ccc;
-  padding-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.result-card {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  backdrop-filter: blur(5px);
 }
