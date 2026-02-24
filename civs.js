@@ -1,6 +1,6 @@
 // civs.js - Hard Tuned for 2v2 Michi DM Post-Imp Trade
 
-export const CIVS = {
+const CIVS_DATA = {
 
   "Aztecs": { late:6, pop:6, siege:7, cav:2, goldEff:6, deathball:6 },
   "Bengalis": { late:7, pop:8, siege:6, cav:4, goldEff:7, deathball:8 },
@@ -40,3 +40,9 @@ export const CIVS = {
   "Vikings": { late:7, pop:8, siege:6, cav:3, goldEff:8, deathball:7 }
 
 };
+
+// Convert object into array format expected by app.js
+export const civs = Object.entries(CIVS_DATA).map(([name, stats]) => ({
+  name,
+  ...stats
+}));
