@@ -1,140 +1,177 @@
-import { CIVS } from "./civs.js";
+import { civs } from "./civs.js";
 
-const enemy1 = document.getElementById("enemy1");
-const enemy2 = document.getElementById("enemy2");
+/* ==============================
+   INITIALIZE DROPDOWNS
+============================== */
+
+const enemy1Select = document.getElementById("enemy1");
+const enemy2Select = document.getElementById("enemy2");
+const ally1Select = document.getElementById("ally1");
+const ally2Select = document.getElementById("ally2");
 const resultsDiv = document.getElementById("results");
-const civNames = Object.keys(CIVS).sort();
 
-// Populate dropdowns
-function populate() {
-  civNames.forEach(c => {
-    enemy1.add(new Option(c, c));
-    enemy2.add(new Option(c, c));
+function populateDropdown(select) {
+  civs.forEach(civ => {
+    const option = document.createElement("option");
+    option.value = civ.name;
+    option.textContent = civ.name;
+    select.appendChild(option);
   });
 }
-populate();
 
-// Scoring function with transparency
-function scorePair(aName, bName, e1Name, e2Name) {
-  const a = CIVS[aName];
-  const b = CIVS[bName];
-  const e1 = CIVS[e1Name];
-  const e2 = CIVS[e2Name];
+populateDropdown(enemy1Select);
+populateDropdown(enemy2Select);
+if (ally1Select) populateDropdown(ally1Select);
+if (ally2Select) populateDropdown(ally2Select);
 
-  let score = 0;
-  let breakdown = [];
+/* ==============================
+   MATCH HISTORY STORAGE
+============================== */
 
-  // Core DM stats
-  const lateScore = (a.late + b.late) * 3;
-  const popScore = (a.pop + b.pop) * 3.5;
-  const siegeScore = (a.siege + b.siege) * 2.5;
-  const deathballScore = (a.deathball + b.deathball) * 3;
-  const goldScore = (a.goldEff + b.goldEff) * 2;
-
-  score += lateScore + popScore + siegeScore + deathballScore + goldScore;
-  breakdown.push(`Late scaling: ${lateScore}`);
-  breakdown.push(`Pop efficiency: ${popScore}`);
-  breakdown.push(`Siege power: ${siegeScore}`);
-  breakdown.push(`Deathball: ${deathballScore}`);
-  breakdown.push(`Gold efficiency: ${goldScore}`);
-
-  // Enemy-specific threats
-  const enemyElephant = e1.deathball >= 9 || e2.deathball >= 9 || e1Name === "Persians" || e2Name === "Persians";
-  const enemyHeavyCav = e1.cav >= 9 || e2.cav >= 9;
-
-  if (enemyElephant) {
-    const antiEle = (a.siege + b.siege) * 2.5 + (a.pop + b.pop) * 1.5;
-    score += antiEle;
-    breakdown.push(`Anti-elephant pressure: ${Math.round(antiEle)}`);
-  }
-
-  if (enemyHeavyCav) {
-    const antiCav = (a.siege + b.siege) * 2;
-    score += antiCav;
-    breakdown.push(`Anti-heavy cav: ${antiCav}`);
-  }
-
-  // Mobility + Siege synergy
-  const aMob = a.cav >= 8;
-  const bMob = b.cav >= 8;
-  const aSiegeCore = a.siege >= 8;
-  const bSiegeCore = b.siege >= 8;
-  if ((aMob && bSiegeCore) || (bMob && aSiegeCore)) {
-    score += 20;
-    breakdown.push("Mobility + Siege synergy: +20");
-  }
-
-  // Penalties for extreme overlap
-  if (a.cav >= 9 && b.cav >= 9) {
-    score -= 25;
-    breakdown.push("Double heavy cav penalty: -25");
-  }
-  if (a.siege >= 9 && b.siege >= 9) {
-    score -= 10;
-    breakdown.push("Double pure siege stacking penalty: -10");
-  }
-
-  // Enemy-specific counters
-  let enemyBonus = 0;
-  const persianCounters = ["Celts", "Bohemians", "Teutons"];
-  const khmerCounters = ["Celts", "Bohemians", "Mongols"];
-
-  if ((e1Name === "Persians" || e2Name === "Persians") &&
-      (persianCounters.includes(aName) || persianCounters.includes(bName))) {
-    enemyBonus += 20;
-    breakdown.push("Targeted Persian counter bonus: +20");
-  }
-
-  if ((e1Name === "Khmer" || e2Name === "Khmer") &&
-      (khmerCounters.includes(aName) || khmerCounters.includes(bName))) {
-    enemyBonus += 10;
-    breakdown.push("Targeted Khmer counter bonus: +10");
-  }
-
-  score += enemyBonus;
-
-  return { score: Math.round(score), breakdown };
+function getHistory() {
+  return JSON.parse(localStorage.getItem("matchHistory")) || [];
 }
 
-// Generate all candidate pairs
-function generate(e1, e2) {
+function saveHistory(history) {
+  localStorage.setItem("matchHistory", JSON.stringify(history));
+}
+
+/* ==============================
+   LOG GAME RESULT
+============================== */
+
+const logBtn = document.getElementById("logBtn");
+
+if (logBtn) {
+  logBtn.addEventListener("click", () => {
+    const entry = {
+      enemy1: enemy1Select.value,
+      enemy2: enemy2Select.value,
+      ally1: ally1Select.value,
+      ally2: ally2Select.value,
+      result: document.getElementById("gameResult").value,
+      timestamp: Date.now()
+    };
+
+    const history = getHistory();
+    history.push(entry);
+    saveHistory(history);
+
+    alert("Game logged.");
+  });
+}
+
+/* ==============================
+   LEARNING SYSTEM
+============================== */
+
+// CONFIGURABLE PARAMETERS
+const MAX_LEARNING_BONUS = 25;     // hard cap
+const DECAY_HALF_LIFE_DAYS = 30;   // older games weaken after 30 days
+
+function calculateLearningAdjustment(civA, civB, enemy1, enemy2) {
+  const history = getHistory();
+
+  const now = Date.now();
+  const halfLifeMs = DECAY_HALF_LIFE_DAYS * 24 * 60 * 60 * 1000;
+
+  let weightedWins = 0;
+  let weightedTotal = 0;
+
+  history.forEach(game => {
+    const sameMatchup =
+      game.enemy1 === enemy1 &&
+      game.enemy2 === enemy2 &&
+      (
+        (game.ally1 === civA && game.ally2 === civB) ||
+        (game.ally1 === civB && game.ally2 === civA)
+      );
+
+    if (!sameMatchup) return;
+
+    const age = now - game.timestamp;
+    const decayFactor = Math.pow(0.5, age / halfLifeMs); // exponential decay
+
+    weightedTotal += decayFactor;
+    if (game.result === "win") {
+      weightedWins += decayFactor;
+    }
+  });
+
+  if (weightedTotal === 0) return 0;
+
+  const winRate = weightedWins / weightedTotal;
+
+  // Neutral at 50%
+  let bonus = (winRate - 0.5) * 50;
+
+  // Cap to prevent runaway bias
+  bonus = Math.max(-MAX_LEARNING_BONUS, Math.min(MAX_LEARNING_BONUS, bonus));
+
+  return bonus;
+}
+
+/* ==============================
+   SCORING LOGIC
+============================== */
+
+function scorePair(civA, civB, enemy1, enemy2) {
+  let score = 0;
+
+  const civObjA = civs.find(c => c.name === civA);
+  const civObjB = civs.find(c => c.name === civB);
+  const enemyObj1 = civs.find(c => c.name === enemy1);
+  const enemyObj2 = civs.find(c => c.name === enemy2);
+
+  if (!civObjA || !civObjB || !enemyObj1 || !enemyObj2) return 0;
+
+  // BASE COUNTER LOGIC
+  score += civObjA.counters?.includes(enemy1) ? 15 : 0;
+  score += civObjA.counters?.includes(enemy2) ? 15 : 0;
+  score += civObjB.counters?.includes(enemy1) ? 15 : 0;
+  score += civObjB.counters?.includes(enemy2) ? 15 : 0;
+
+  // ANTI-SAME CIV PENALTY
+  if (civA === civB) score -= 10;
+
+  // LEARNING ADJUSTMENT
+  score += calculateLearningAdjustment(civA, civB, enemy1, enemy2);
+
+  return score;
+}
+
+/* ==============================
+   GENERATE SUGGESTIONS
+============================== */
+
+document.getElementById("suggestBtn").addEventListener("click", () => {
+  const enemy1 = enemy1Select.value;
+  const enemy2 = enemy2Select.value;
+
   const pairs = [];
 
-  for (let i = 0; i < civNames.length; i++) {
-    for (let j = i + 1; j < civNames.length; j++) {
-      const c1 = civNames[i];
-      const c2 = civNames[j];
+  for (let i = 0; i < civs.length; i++) {
+    for (let j = i + 1; j < civs.length; j++) {
+      const civA = civs[i].name;
+      const civB = civs[j].name;
 
-      if (c1 === c2) continue; // prevent duplicates
+      const score = scorePair(civA, civB, enemy1, enemy2);
 
-      const { score, breakdown } = scorePair(c1, c2, e1, e2);
-      pairs.push({ pair: `${c1} + ${c2}`, score, breakdown });
+      pairs.push({ civA, civB, score });
     }
   }
 
   pairs.sort((a, b) => b.score - a.score);
-  return pairs;
-}
 
-// Display top 5 pairs with transparency
-function display() {
-  const e1 = enemy1.value;
-  const e2 = enemy2.value;
+  const top = pairs.slice(0, 5);
 
-  if (!e1 || !e2 || e1 === e2) {
-    resultsDiv.innerHTML = "Select two different enemy civs.";
-    return;
-  }
-
-  const pairs = generate(e1, e2);
-  let html = `<h3>Countering ${e1} + ${e2}</h3>`;
-
-  pairs.slice(0, 5).forEach(p => {
-    html += `<p><strong>${p.pair}</strong> (Score: ${p.score})<br>`;
-    html += `${p.breakdown.join("<br>")}</p>`;
-  });
-
-  resultsDiv.innerHTML = html;
-}
-
-document.getElementById("suggestBtn").addEventListener("click", display);
+  resultsDiv.innerHTML = `
+    <h3>Top Suggestions</h3>
+    ${top
+      .map(
+        pair =>
+          `<div>${pair.civA} + ${pair.civB} — Score: ${pair.score.toFixed(1)}</div>`
+      )
+      .join("")}
+  `;
+});
