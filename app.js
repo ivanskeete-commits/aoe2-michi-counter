@@ -17,27 +17,22 @@ function populateDropdown(select) {
   select.innerHTML = ""; 
   civNames.forEach(c => {
     const option = document.createElement("option");
-    option.value = c;
-    option.textContent = c;
+    option.value = c; option.textContent = c;
     select.appendChild(option);
   });
 }
 
 [enemy1Select, enemy2Select, ally1Select, ally2Select].forEach(populateDropdown);
 
-/* HISTORY LOGIC */
 function getHistory() { return JSON.parse(localStorage.getItem("matchHistory")) || []; }
 function saveHistory(h) { localStorage.setItem("matchHistory", JSON.stringify(h)); }
 
 function renderHistory() {
   const history = getHistory().reverse();
-  // Removed all Badge/Icon HTML tags here
   historyTableBody.innerHTML = history.slice(0, 8).map(g => `
     <tr>
-      <td><strong>${g.enemy1}</strong></td>
-      <td><strong>${g.enemy2}</strong></td>
-      <td><strong>${g.ally1}</strong></td>
-      <td><strong>${g.ally2}</strong></td>
+      <td>${g.enemy1} & ${g.enemy2}</td>
+      <td><strong>${g.ally1} & ${g.ally2}</strong></td>
       <td class="${g.result}-text">${g.result.toUpperCase()}</td>
       <td>${new Date(g.timestamp).toLocaleDateString()}</td>
     </tr>
@@ -45,14 +40,12 @@ function renderHistory() {
   renderStats();
 }
 
-/* STATS LOGIC */
 function renderStats() {
   const history = getHistory();
   if (history.length === 0) {
-    statsContainer.innerHTML = `<p style="text-align:center; font-style:italic; width:100%;">No data yet.</p>`;
+    statsContainer.innerHTML = "<p>Log games to train the engine.</p>";
     return;
   }
-
   const civStats = {};
   history.forEach(game => {
     [game.ally1, game.ally2].forEach(civ => {
@@ -61,16 +54,12 @@ function renderStats() {
       if (game.result === "win") civStats[civ].wins++;
     });
   });
+  const sorted = Object.entries(civStats)
+    .map(([name, d]) => ({ name, ...d, winRate: (d.wins/d.total*100).toFixed(0) }))
+    .sort((a,b) => b.wins - a.wins).slice(0, 3);
 
-  const sortedStats = Object.entries(civStats)
-    .map(([name, data]) => ({ name, ...data, winRate: (data.wins / data.total * 100).toFixed(0) }))
-    .sort((a, b) => b.wins - a.wins || b.winRate - a.winRate)
-    .slice(0, 3);
-
-  // Removed Badge HTML from stats boxes
-  statsContainer.innerHTML = sortedStats.map(s => `
+  statsContainer.innerHTML = sorted.map(s => `
     <div class="stat-box">
-      <div style="color: var(--aoe-gold); font-size: 0.8rem; font-weight: bold;">TOP CIV</div>
       <strong>${s.name}</strong><br>
       <span class="win-text">${s.wins} Wins</span> (${s.winRate}%)
     </div>
@@ -86,61 +75,52 @@ logBtn.addEventListener("click", () => {
   });
   saveHistory(history);
   renderHistory();
-  console.log("Match recorded.");
+  alert("Match Logged!");
 });
 
 clearBtn.addEventListener("click", () => {
-  if (confirm("Delete all history and stats?")) {
-    saveHistory([]);
-    renderHistory();
-  }
+  if (confirm("Clear all data?")) { saveHistory([]); renderHistory(); }
 });
-
-/* SCORING & SUGGESTIONS */
-function calculateLearningAdjustment(civA, civB, e1, e2) {
-  const history = getHistory();
-  const filtered = history.filter(g => 
-    g.enemy1 === e1 && g.enemy2 === e2 && 
-    ((g.ally1 === civA && g.ally2 === civB) || (g.ally1 === civB && g.ally2 === civA))
-  );
-  if (!filtered.length) return 0;
-  return Math.round(((filtered.filter(g => g.result === "win").length / filtered.length) - 0.5) * 40);
-}
 
 document.getElementById("suggestBtn").addEventListener("click", () => {
   const e1 = enemy1Select.value, e2 = enemy2Select.value;
+  resultsDiv.innerHTML = "<p style='text-align:center;'>Simulating Michi Meta...</p>";
+  
+  const history = getHistory();
   const pairs = [];
+
   for (let i = 0; i < civNames.length; i++) {
     for (let j = i + 1; j < civNames.length; j++) {
       const civA = civNames[i], civB = civNames[j];
       if ([e1, e2].includes(civA) || [e1, e2].includes(civB)) continue;
       
       const a = CIVS[civA], b = CIVS[civB];
-      let score = (a.late + b.late) * 3 + (a.goldEff + b.goldEff) * 2;
       
-      if ((a.cav >= 8 && b.siege >= 8) || (b.cav >= 8 && a.siege >= 8)) score += 25;
+      // MICHI SCORING (Late + Gold Efficiency)
+      let score = (a.late + b.late) * 15 + (a.goldEff + b.goldEff) * 10;
       
-      score += calculateLearningAdjustment(civA, civB, e1, e2);
+      // SYNERGY: Siege + Protection (300 Pop Deathball)
+      if ((a.siege >= 8 && b.pop >= 8) || (b.siege >= 8 && a.pop >= 8)) score += 50;
+      if (civA === "Spanish" || civB === "Spanish") score += 60; // Trade God
+
+      // LEARNING: Historical Performance
+      const pairGames = history.filter(g => 
+        ((g.ally1 === civA && g.ally2 === civB) || (g.ally1 === civB && g.ally2 === civA))
+      );
+      if (pairGames.length > 0) {
+        const winRate = pairGames.filter(g => g.result === "win").length / pairGames.length;
+        score += (winRate - 0.5) * 200; 
+      }
       pairs.push({ civA, civB, score });
     }
   }
+
   pairs.sort((a, b) => b.score - a.score);
-  
-  // Results cards now only show text
-  resultsDiv.innerHTML = pairs.slice(0, 5).map((p, i) => `
+  resultsDiv.innerHTML = pairs.slice(0, 5).map(p => `
     <div class="result-card">
       <div class="card-header">
-        <div class="pair-names">
-          <strong>${p.civA}</strong>
-          <span style="color: #888;">&</span>
-          <strong>${p.civB}</strong>
-        </div>
-        <button class="btn btn-orange" style="font-size:10px; padding:2px 8px;" onclick="const el=document.getElementById('det-${i}'); el.style.display=el.style.display==='block'?'none':'block'">Details ▾</button>
-      </div>
-      <div id="det-${i}" class="details-pane">
-        <div class="stat-row">Late Scaling: <span class="stat-plus">+${CIVS[p.civA].late + CIVS[p.civB].late}</span></div>
-        <div class="stat-row">Gold Efficiency: <span class="stat-plus">+${CIVS[p.civA].goldEff + CIVS[p.civB].goldEff}</span></div>
-        <div class="stat-row">Matchup XP: <span class="stat-plus">${calculateLearningAdjustment(p.civA, p.civB, e1, e2)}</span></div>
+        <div class="pair-names"><strong>${p.civA}</strong> & <strong>${p.civB}</strong></div>
+        <div class="score-tag">Rating: ${Math.round(p.score)}</div>
       </div>
     </div>
   `).join("");
