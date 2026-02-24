@@ -10,8 +10,10 @@ const gameResultSelect = document.getElementById("gameResult");
 const historyTableBody = document.getElementById("historyTableBody");
 
 const civNames = Object.keys(CIVS).sort();
+console.log("Loaded Civs:", civNames); // Check your browser console (F12) for this!
 
 function populateDropdown(select) {
+  select.innerHTML = ""; // Clear the "Loading..." text
   civNames.forEach(c => {
     const option = document.createElement("option");
     option.value = c;
@@ -20,9 +22,10 @@ function populateDropdown(select) {
   });
 }
 
+// Run the population
 [enemy1Select, enemy2Select, ally1Select, ally2Select].forEach(populateDropdown);
 
-/* HISTORY LOGIC */
+/* --- PERSISTENCE --- */
 function getHistory() { return JSON.parse(localStorage.getItem("matchHistory")) || []; }
 function saveHistory(h) { localStorage.setItem("matchHistory", JSON.stringify(h)); }
 
@@ -37,6 +40,7 @@ function renderHistory() {
   `).join("");
 }
 
+/* --- LOGGING --- */
 logBtn.addEventListener("click", () => {
   const history = getHistory();
   history.push({
@@ -49,7 +53,7 @@ logBtn.addEventListener("click", () => {
   alert("Result Logged!");
 });
 
-/* SCORING LOGIC */
+/* --- SCORING --- */
 function calculateLearningAdjustment(civA, civB, e1, e2) {
   const history = getHistory();
   const filtered = history.filter(g => 
@@ -62,18 +66,19 @@ function calculateLearningAdjustment(civA, civB, e1, e2) {
 }
 
 function scorePair(civA, civB, enemy1, enemy2) {
-  const a = CIVS[civA], b = CIVS[civB], e1 = CIVS[enemy1], e2 = CIVS[enemy2];
+  const a = CIVS[civA], b = CIVS[civB];
   let score = (a.late + b.late) * 3 + (a.pop + b.pop) * 3 + (a.goldEff + b.goldEff) * 2;
   if ((a.cav >= 8 && b.siege >= 8) || (b.cav >= 8 && a.siege >= 8)) score += 25;
-  if (a.cav >= 9 && b.cav >= 9) score -= 30;
+  if (a.cav >= 9 && b.cav >= 9) score -= 30; // Double cav penalty
   score += calculateLearningAdjustment(civA, civB, enemy1, enemy2);
   return score;
 }
 
-/* SUGGESTIONS */
+/* --- SUGGESTIONS --- */
 document.getElementById("suggestBtn").addEventListener("click", () => {
   const e1 = enemy1Select.value, e2 = enemy2Select.value;
   const pairs = [];
+  
   for (let i = 0; i < civNames.length; i++) {
     for (let j = i + 1; j < civNames.length; j++) {
       const civA = civNames[i], civB = civNames[j];
@@ -81,6 +86,7 @@ document.getElementById("suggestBtn").addEventListener("click", () => {
       pairs.push({ civA, civB, score: scorePair(civA, civB, e1, e2) });
     }
   }
+  
   pairs.sort((a, b) => b.score - a.score);
   
   resultsDiv.innerHTML = pairs.slice(0, 5).map((p, i) => `
