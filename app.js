@@ -1,19 +1,5 @@
-import { CIVS } from "./civs.js";
-
-const enemy1 = document.getElementById("enemy1");
-const enemy2 = document.getElementById("enemy2");
-const resultsDiv = document.getElementById("results");
-const civNames = Object.keys(CIVS).sort();
-
-function populate() {
-  civNames.forEach(c => {
-    enemy1.add(new Option(c, c));
-    enemy2.add(new Option(c, c));
-  });
-}
-populate();
-
 function scorePair(aName, bName, e1Name, e2Name) {
+
   const a = CIVS[aName];
   const b = CIVS[bName];
   const e1 = CIVS[e1Name];
@@ -22,85 +8,103 @@ function scorePair(aName, bName, e1Name, e2Name) {
   let score = 0;
   let breakdown = [];
 
-  // Core DM weighting
+  // =========================
+  // CORE POST-IMP TRADE META
+  // =========================
+
   const lateScore = (a.late + b.late) * 3;
-  const popScore = (a.pop + b.pop) * 3;
-  const siegeScore = (a.siege + b.siege) * 2;
+  const popScore = (a.pop + b.pop) * 4;        // pop matters more with 300 cap
+  const siegeScore = (a.siege + b.siege) * 3;  // choke map boost
   const deathballScore = (a.deathball + b.deathball) * 3;
   const goldScore = (a.goldEff + b.goldEff) * 2;
 
   score += lateScore + popScore + siegeScore + deathballScore + goldScore;
 
   breakdown.push(`Late scaling: ${lateScore}`);
-  breakdown.push(`Pop efficiency: ${popScore}`);
-  breakdown.push(`Siege power: ${siegeScore}`);
+  breakdown.push(`Pop efficiency (300 cap): ${popScore}`);
+  breakdown.push(`Siege power (Michi choke): ${siegeScore}`);
   breakdown.push(`Deathball: ${deathballScore}`);
-  breakdown.push(`Gold efficiency: ${goldScore}`);
+  breakdown.push(`Gold efficiency (heavy trade): ${goldScore}`);
 
-  // Counter heavy cav
-  if (e1.cav >= 9 || e2.cav >= 9) {
-    const antiCav = a.siege + b.siege;
-    score += antiCav * 3;
-    breakdown.push(`Anti-cav bonus: ${antiCav * 3}`);
+  // =========================
+  // ENEMY THREAT MODELING
+  // =========================
+
+  const enemyElephant =
+    e1Name === "Persians" || e2Name === "Persians" ||
+    e1.deathball >= 9 || e2.deathball >= 9;
+
+  const enemyHeavyCav =
+    e1.cav >= 9 || e2.cav >= 9;
+
+  // =========================
+  // ELEPHANT FLOOD COUNTER
+  // =========================
+
+  if (enemyElephant) {
+    const antiEle =
+      (a.siege + b.siege) * 3 +   // scorps/SO proxy
+      (a.pop + b.pop) * 1.5;      // halb spam sustain proxy
+
+    score += antiEle;
+    breakdown.push(`Anti-elephant pressure: ${Math.round(antiEle)}`);
   }
 
-  // Reward cav + siege combo
-  if ((a.cav >= 8 && b.siege >= 8) || (b.cav >= 8 && a.siege >= 8)) {
-    score += 25;
-    breakdown.push("Cav + Siege synergy: +25");
+  // =========================
+  // ANTI HEAVY CAV
+  // =========================
+
+  if (enemyHeavyCav) {
+    const antiCav = (a.siege + b.siege) * 2;
+    score += antiCav;
+    breakdown.push(`Anti-heavy cav: ${antiCav}`);
   }
 
-  // Prevent double pure cav spam
+  // =========================
+  // ROLE BALANCING
+  // =========================
+
+  const aMob = a.cav >= 8;
+  const bMob = b.cav >= 8;
+  const aSiegeCore = a.siege >= 8;
+  const bSiegeCore = b.siege >= 8;
+
+  if ((aMob && bSiegeCore) || (bMob && aSiegeCore)) {
+    score += 20;
+    breakdown.push("Mobility + Siege synergy: +20");
+  }
+
+  // =========================
+  // OVERLAP PENALTIES
+  // =========================
+
   if (a.cav >= 9 && b.cav >= 9) {
-    score -= 30;
-    breakdown.push("Double heavy cav penalty: -30");
+    score -= 25;
+    breakdown.push("Double heavy cav penalty: -25");
   }
 
-  return { score, breakdown };
-}
-
-function generate(e1, e2) {
-  const pairs = [];
-
-  for (let i = 0; i < civNames.length; i++) {
-    for (let j = i + 1; j < civNames.length; j++) {
-
-      const c1 = civNames[i];
-      const c2 = civNames[j];
-
-      if (c1 === e1 || c1 === e2) continue;
-      if (c2 === e1 || c2 === e2) continue;
-
-      const { score, breakdown } = scorePair(c1, c2, e1, e2);
-
-      pairs.push({ pair: `${c1} + ${c2}`, score, breakdown });
-    }
+  if (a.siege >= 9 && b.siege >= 9) {
+    score -= 10;
+    breakdown.push("Double pure siege stacking penalty: -10");
   }
 
-  pairs.sort((a, b) => b.score - a.score);
-  return pairs;
-}
+  // =========================
+  // PERSIAN META REALITY
+  // =========================
 
-function display() {
-
-  const e1 = enemy1.value;
-  const e2 = enemy2.value;
-
-  if (!e1 || !e2 || e1 === e2) {
-    resultsDiv.innerHTML = "Select two different enemy civs.";
-    return;
+  if (aName === "Persians" || bName === "Persians") {
+    score += 12;  // reflect actual Michi dominance
+    breakdown.push("Persian post-imp trade dominance: +12");
   }
 
-  const pairs = generate(e1, e2);
+  // =========================
+  // AZTEC CORRECTION
+  // =========================
 
-  let html = `<h3>Countering ${e1} + ${e2}</h3>`;
+  if (aName === "Aztecs" || bName === "Aztecs") {
+    score -= 8;   // monk eco less relevant in DM trade meta
+    breakdown.push("Aztec DM trade correction: -8");
+  }
 
-  pairs.slice(0, 5).forEach(p => {
-    html += `<p><strong>${p.pair}</strong> (Score: ${p.score})<br>
-    ${p.breakdown.join("<br>")}</p>`;
-  });
-
-  resultsDiv.innerHTML = html;
+  return { score: Math.round(score), breakdown };
 }
-
-document.getElementById("suggestBtn").addEventListener("click", display);
