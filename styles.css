@@ -24,21 +24,31 @@ body {
 }
 
 .main-header {
-  background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.6)), 
-              url('https://cdn.akamai.steamstatic.com/steam/apps/813780/ss_593d9370783305459384488346c1c3f5d540243e.1920x1080.jpg');
-  background-size: cover;
-  background-position: center 30%;
+  background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8));
+  background-color: #1a1a1a;
   text-align: center;
-  padding: 30px 20px;
+  padding: 40px 20px;
   border-bottom: 4px solid var(--aoe-gold);
 }
 
-.logo { width: 320px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.8)); }
+/* NEW: High-end text-based logo */
+.logo-text {
+  font-size: 2.5rem;
+  color: #fff;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 6px;
+  text-shadow: 0 0 10px var(--aoe-gold), 2px 2px 4px #000;
+  margin-bottom: 5px;
+}
 
 .header-title { 
-  color: #fff; text-transform: uppercase; 
-  text-shadow: 2px 2px 5px #000, 0 0 10px var(--aoe-gold); 
-  margin-top: 15px; letter-spacing: 2px; font-size: 1.8rem;
+  color: var(--aoe-gold); 
+  text-transform: uppercase; 
+  margin-top: 5px; 
+  letter-spacing: 2px; 
+  font-size: 1.2rem;
+  opacity: 0.9;
 }
 
 .parchment-container {
@@ -57,7 +67,7 @@ body {
 
 .controls-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr) 150px; /* 4 civs + 1 action column */
+  grid-template-columns: repeat(4, 1fr) 150px;
   gap: 15px;
   align-items: start;
 }
@@ -73,12 +83,31 @@ select {
   border: 2px solid #ffd700; color: white;
   font-weight: bold; padding: 10px; cursor: pointer;
   text-shadow: 1px 1px 1px #000; text-transform: uppercase;
+  transition: transform 0.1s;
 }
-.btn:hover { filter: brightness(1.2); }
+.btn:hover { filter: brightness(1.2); transform: translateY(-1px); }
 .btn-green { background: var(--aoe-green); }
 .btn-blue { background: var(--aoe-blue); }
 .btn-orange { background: var(--aoe-orange); }
 .full-width { width: 100%; margin-top: 15px; font-size: 1.1rem; }
+
+/* NEW: Civ Badges instead of Icons */
+.civ-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: var(--aoe-blue);
+  border: 1px solid var(--aoe-gold);
+  border-radius: 3px;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  margin-right: 8px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
 
 /* Stats Grid */
 .stats-grid {
@@ -91,13 +120,20 @@ select {
 .stat-box {
   background: rgba(0,0,0,0.05);
   border: 1px solid var(--aoe-gold);
-  padding: 10px;
+  padding: 15px;
   text-align: center;
   min-width: 120px;
 }
 
-.civ-icon { width: 28px; height: 28px; vertical-align: middle; }
-.pair-names { display: flex; align-items: center; gap: 10px; }
+.stat-box .civ-badge {
+  width: 35px;
+  height: 35px;
+  font-size: 14px;
+  margin: 0 auto 10px auto;
+  display: flex;
+}
+
+.pair-names { display: flex; align-items: center; gap: 5px; }
 
 /* Result Cards */
 .result-card { background: rgba(0,0,0,0.05); border: 1px solid var(--aoe-gold); margin-bottom: 10px; }
@@ -109,7 +145,6 @@ select {
 /* History Table */
 .history-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
 .history-table th { background: rgba(0,0,0,0.1); text-align: left; padding: 12px; border-bottom: 2px solid var(--aoe-gold); }
-.history-table td { padding: 10px; border-bottom: 1px solid #c4a47c; }
-.history-table .civ-icon { width: 20px; height: 20px; margin-right: 5px; }
+.history-table td { padding: 10px; border-bottom: 1px solid #c4a47c; vertical-align: middle; }
 .win-text { color: #1e7d1e; font-weight: bold; }
 .loss-text { color: #8a1a1a; font-weight: bold; }
