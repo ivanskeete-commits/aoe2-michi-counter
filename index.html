@@ -3,117 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AOE2 Counter Picker</title>
+  <title>AOE2 DE Counter Picker</title>
   <link rel="stylesheet" href="styles.css" />
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f2e8d8;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      text-align: center;
-      background-color: #333;
-      color: white;
-      padding-bottom: 1rem;
-    }
-    header img {
-      width: 100%;
-      max-width: 1024px;
-      height: auto;
-    }
-    .controls, .log-controls {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1rem;
-      margin: 1rem;
-    }
-    .controls div, .log-controls div {
-      display: flex;
-      flex-direction: column;
-    }
-    select, button {
-      padding: 0.5rem;
-      font-size: 1rem;
-    }
-    #results {
-      max-width: 1024px;
-      margin: 1rem auto;
-      padding: 1rem;
-      background-color: #fff8f0;
-      border: 1px solid #d4b996;
-      border-radius: 8px;
-    }
-    h3 {
-      text-align: center;
-    }
-    .log-controls {
-      margin-top: 2rem;
-      background-color: #fff4e6;
-      padding: 1rem;
-      border-radius: 8px;
-      border: 1px solid #d4b996;
-      max-width: 1024px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-  </style>
 </head>
 <body>
+  <div class="background-container">
+    <img src="a_web_based_interface_for_an_age_of_empires_ii_de.png" alt="AOE2 DE Background" class="bg-image" />
+    <div class="overlay">
+      <h1>AOE2 DE Counter Pair Generator</h1>
 
-  <header>
-    <img src="./a_web_based_interface_for_an_age_of_empires_ii_de.png" alt="AOE2 Banner" />
-    <h1>AOE2 DE Counter Pair Generator</h1>
-  </header>
+      <div class="controls">
+        <div>
+          <label for="enemy1">Enemy Civ 1:</label>
+          <select id="enemy1"></select>
+        </div>
+        <div>
+          <label for="enemy2">Enemy Civ 2:</label>
+          <select id="enemy2"></select>
+        </div>
+        <div>
+          <label for="ally1">Your Civ 1:</label>
+          <select id="ally1"></select>
+        </div>
+        <div>
+          <label for="ally2">Your Civ 2:</label>
+          <select id="ally2"></select>
+        </div>
+        <div>
+          <label for="gameResult">Result:</label>
+          <select id="gameResult">
+            <option value="win">Win</option>
+            <option value="loss">Loss</option>
+          </select>
+        </div>
+        <div class="buttons">
+          <button id="suggestBtn">Suggest Counters</button>
+          <button id="logBtn">Log Game</button>
+        </div>
+      </div>
 
-  <!-- Enemy selection -->
-  <div class="controls">
-    <div>
-      <label for="enemy1">Enemy Civ 1:</label>
-      <select id="enemy1"></select>
-    </div>
-    <div>
-      <label for="enemy2">Enemy Civ 2:</label>
-      <select id="enemy2"></select>
-    </div>
-    <div>
-      <button id="suggestBtn" type="button">Suggest Counters</button>
+      <div id="results"></div>
     </div>
   </div>
 
-  <!-- Results display -->
-  <div id="results"></div>
-
-  <!-- Game logging -->
-  <div class="log-controls">
-    <h3>Log Game Result</h3>
-    <div>
-      <label for="ally1">Your Civ 1:</label>
-      <select id="ally1"></select>
-    </div>
-    <div>
-      <label for="ally2">Your Civ 2:</label>
-      <select id="ally2"></select>
-    </div>
-    <div>
-      <label for="gameResult">Result:</label>
-      <select id="gameResult">
-        <option value="win">Win</option>
-        <option value="loss">Loss</option>
-      </select>
-    </div>
-    <div>
-      <button id="logBtn" type="button">Log Game</button>
-    </div>
-  </div>
-
-  <!-- Load civ data and app logic -->
-  <script type="module">
-    import "./civs.js";
-    import "./app.js";
-  </script>
-
+  <script type="module" src="app.js"></script>
 </body>
 </html>
