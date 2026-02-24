@@ -21,19 +21,19 @@
         <div class="controls-grid">
           <div class="input-group">
             <label>Enemy Civ 1:</label>
-            <select id="enemy1"></select>
+            <select id="enemy1"><option>Loading...</option></select>
           </div>
           <div class="input-group">
             <label>Enemy Civ 2:</label>
-            <select id="enemy2"></select>
+            <select id="enemy2"><option>Loading...</option></select>
           </div>
           <div class="input-group">
             <label>Your Civ 1:</label>
-            <select id="ally1"></select>
+            <select id="ally1"><option>Loading...</option></select>
           </div>
           <div class="input-group">
             <label>Your Civ 2:</label>
-            <select id="ally2"></select>
+            <select id="ally2"><option>Loading...</option></select>
           </div>
           <div class="input-group">
             <label>Game Result:</label>
@@ -51,8 +51,7 @@
 
       <section class="ui-panel">
         <div class="ornate-divider"><span>Top Counter Suggestions</span></div>
-        <div id="results">
-          </div>
+        <div id="results"></div>
       </section>
 
       <section class="ui-panel">
@@ -60,12 +59,7 @@
         <table class="history-table">
           <thead>
             <tr>
-              <th>Enemy 1</th>
-              <th>Enemy 2</th>
-              <th>Your Civ 1</th>
-              <th>Your Civ 2</th>
-              <th>Result</th>
-              <th>Date</th>
+              <th>Enemy 1</th><th>Enemy 2</th><th>Your Civ 1</th><th>Your Civ 2</th><th>Result</th><th>Date</th>
             </tr>
           </thead>
           <tbody id="historyTableBody"></tbody>
@@ -73,7 +67,6 @@
       </section>
     </main>
   </div>
-
   <script type="module" src="app.js"></script>
 </body>
 </html>
