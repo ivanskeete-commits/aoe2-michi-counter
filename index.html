@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AOE2 Counter Picker</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -10,19 +11,28 @@
   <h1>AOE2 DE Counter Pair Generator</h1>
 
   <div class="controls">
-    <label>Enemy Civ 1:</label>
-    <select id="enemy1"></select>
+    <div>
+      <label for="enemy1">Enemy Civ 1:</label>
+      <select id="enemy1"></select>
+    </div>
 
-    <label>Enemy Civ 2:</label>
-    <select id="enemy2"></select>
+    <div>
+      <label for="enemy2">Enemy Civ 2:</label>
+      <select id="enemy2"></select>
+    </div>
 
-    <button id="suggestBtn">Suggest Counters</button>
+    <div>
+      <button id="suggestBtn" type="button">Suggest Counters</button>
+    </div>
   </div>
 
   <div id="results"></div>
 
-  <!-- IMPORTANT: must be type="module" -->
-  <script type="module" src="app.js"></script>
+  <!-- Load civ data first -->
+  <script type="module">
+    import "./civs.js";
+    import "./app.js";
+  </script>
 
 </body>
 </html>
