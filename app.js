@@ -58,13 +58,14 @@ window.onload = function() {
 
     const civNames = Object.keys(CIVS).sort();
 
-    // 1. Dropdown Setup
+    // 1. Dropdown Setup - Aggressive Population
     function populateDropdown(select) {
         if (!select) return;
-        let html = "";
+        let html = '<option value="" disabled selected>Select Civ</option>';
         civNames.forEach(c => { html += `<option value="${c}">${c}</option>`; });
         select.innerHTML = html;
     }
+    
     [enemy1Select, enemy2Select, ally1Select, ally2Select].forEach(populateDropdown);
 
     // 2. Data Storage
@@ -139,6 +140,12 @@ window.onload = function() {
 
             const e1 = enemy1Select.value;
             const e2 = enemy2Select.value;
+            
+            if (!e1 || !e2) {
+                resultsDiv.innerHTML = "<p style='color:orange;'>Please select both enemy civilizations first!</p>";
+                return;
+            }
+
             const history = getHistory();
             const pairs = [];
 
@@ -158,4 +165,31 @@ window.onload = function() {
                     if (civA === "Spanish" || civB === "Spanish") score += 60;
 
                     const pairGames = history.filter(g => 
-                        (g.ally1 === civA &&
+                        (g.ally1 === civA && g.ally2 === civB) || (g.ally1 === civB && g.ally2 === civA)
+                    );
+                    
+                    if (pairGames.length > 0) {
+                        const winRate = pairGames.filter(g => g.result === "win").length / pairGames.length;
+                        score += (winRate - 0.5) * 200;
+                    }
+
+                    pairs.push({ nameA: civA, nameB: civB, score: score });
+                }
+            }
+
+            pairs.sort((a, b) => b.score - a.score);
+
+            let html = "";
+            pairs.slice(0, 5).forEach(p => {
+                html += `
+                <div class="result-card" style="border: 1px solid #444; margin: 5px; padding: 10px; border-radius: 5px; background: #222;">
+                    <strong>${p.nameA} & ${p.nameB}</strong><br>
+                    <small>Michi Power Rating: ${Math.round(p.score)}</small>
+                </div>`;
+            });
+            resultsDiv.innerHTML = html;
+        };
+    }
+
+    renderHistory();
+};
