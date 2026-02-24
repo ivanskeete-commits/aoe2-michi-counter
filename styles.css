@@ -31,7 +31,6 @@ body {
   border-bottom: 4px solid var(--aoe-gold);
 }
 
-/* NEW: High-end text-based logo */
 .logo-text {
   font-size: 2.5rem;
   color: #fff;
@@ -91,60 +90,46 @@ select {
 .btn-orange { background: var(--aoe-orange); }
 .full-width { width: 100%; margin-top: 15px; font-size: 1.1rem; }
 
-/* NEW: Civ Badges instead of Icons */
-.civ-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  background: var(--aoe-blue);
-  border: 1px solid var(--aoe-gold);
-  border-radius: 3px;
-  color: white;
-  font-size: 10px;
-  font-weight: bold;
-  margin-right: 8px;
-  text-transform: uppercase;
-  flex-shrink: 0;
-}
-
-/* Stats Grid */
+/* Stats Grid - Cleaned for Text Only */
 .stats-grid {
   display: flex;
   justify-content: space-around;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 15px;
 }
 
 .stat-box {
   background: rgba(0,0,0,0.05);
-  border: 1px solid var(--aoe-gold);
-  padding: 15px;
+  border: 2px solid var(--aoe-gold);
+  padding: 20px;
   text-align: center;
-  min-width: 120px;
+  min-width: 150px;
+  flex: 1;
 }
 
-.stat-box .civ-badge {
-  width: 35px;
-  height: 35px;
-  font-size: 14px;
-  margin: 0 auto 10px auto;
-  display: flex;
+/* Civilization names styling in the table and cards */
+.history-table td strong,
+.pair-names strong {
+  color: #3d2b1f;
+  font-size: 1rem;
 }
 
-.pair-names { display: flex; align-items: center; gap: 5px; }
+.pair-names { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+}
 
 /* Result Cards */
-.result-card { background: rgba(0,0,0,0.05); border: 1px solid var(--aoe-gold); margin-bottom: 10px; }
+.result-card { background: rgba(255,255,255,0.2); border: 1px solid var(--aoe-gold); margin-bottom: 10px; }
 .card-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; }
 .details-pane { display: none; padding: 15px 40px; background: rgba(255,255,255,0.4); border-top: 1px solid var(--aoe-gold); }
 .stat-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(0,0,0,0.1); }
 .stat-plus { color: #2d5a27; font-weight: bold; }
 
-/* History Table */
-.history-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+/* History Table - Removed Icon spacing constraints */
+.history-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 .history-table th { background: rgba(0,0,0,0.1); text-align: left; padding: 12px; border-bottom: 2px solid var(--aoe-gold); }
-.history-table td { padding: 10px; border-bottom: 1px solid #c4a47c; vertical-align: middle; }
+.history-table td { padding: 12px 10px; border-bottom: 1px solid #c4a47c; vertical-align: middle; }
 .win-text { color: #1e7d1e; font-weight: bold; }
 .loss-text { color: #8a1a1a; font-weight: bold; }
