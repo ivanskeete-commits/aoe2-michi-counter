@@ -41,12 +41,17 @@
               <option value="win">Win</option>
               <option value="loss">Loss</option>
             </select>
-          </div>
-          <div class="input-group">
-            <button id="logBtn" class="btn btn-green">Log Game</button>
+            <button id="logBtn" class="btn btn-green" style="margin-top: 10px; width: 100%;">Log Game</button>
           </div>
         </div>
         <button id="suggestBtn" class="btn btn-blue full-width">Suggest Counters —&gt;</button>
+      </section>
+
+      <section class="ui-panel">
+        <div class="ornate-divider"><span>Civilization Statistics</span></div>
+        <div id="statsContainer" class="stats-grid">
+          <p style="text-align:center; font-style:italic; width:100%;">No data yet. Log games to see your best civs!</p>
+        </div>
       </section>
 
       <section class="ui-panel">
@@ -56,14 +61,17 @@
 
       <section class="ui-panel">
         <div class="ornate-divider"><span>Recent Match History</span></div>
-        <table class="history-table">
-          <thead>
-            <tr>
-              <th>Enemy 1</th><th>Enemy 2</th><th>Your Civ 1</th><th>Your Civ 2</th><th>Result</th><th>Date</th>
-            </tr>
-          </thead>
-          <tbody id="historyTableBody"></tbody>
-        </table>
+        <div class="table-wrapper">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Enemy 1</th><th>Enemy 2</th><th>Your Civ 1</th><th>Your Civ 2</th><th>Result</th><th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+          </table>
+        </div>
+        <button id="clearBtn" class="btn btn-orange" style="margin-top: 15px; font-size: 0.7rem; padding: 5px 15px;">Clear All History</button>
       </section>
     </main>
   </div>
