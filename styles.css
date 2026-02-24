@@ -1,44 +1,21 @@
 body {
-  font-family: system-ui, sans-serif;
-  background: #0f172a;
-  color: #e5e7eb;
-  max-width: 600px;
-  margin: auto;
-  padding: 20px;
+  font-family: Arial, sans-serif;
+  margin: 20px;
 }
 
-h1 {
-  text-align: center;
+h1 { margin-bottom: 20px; }
+
+.controls {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
 }
 
-.subtitle {
-  text-align: center;
-  font-size: 0.9rem;
-  color: #94a3b8;
+.controls div {
+  display: flex;
+  flex-direction: column;
 }
 
-label {
-  display: block;
-  margin-top: 20px;
-}
-
-select, button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 8px;
-  font-size: 1rem;
-}
-
-button {
-  background: #2563eb;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-.result {
-  margin-top: 12px;
-  padding: 12px;
-  background: #020617;
-  border-radius: 6px;
+#results p {
+  margin: 5px 0;
 }
