@@ -180,9 +180,14 @@ document.getElementById("suggestBtn").addEventListener("click", () => {
   const top5 = pairs.slice(0, 5);
 
   resultsDiv.innerHTML = `
-    <h3>Top Suggestions for ${e1} + ${e2}</h3>
-    ${top5
-      .map(pair => `<div>${pair.civA} + ${pair.civB} — Score: ${pair.score.toFixed(1)}</div>`)
-      .join("")}
-  `;
+  <h3>Top Suggestions for ${e1} + ${e2}</h3>
+  ${top5
+    .map(pair => `
+      <div class="result-card">
+        <strong>${pair.civA} + ${pair.civB}</strong><br>
+        Score: ${pair.score.toFixed(1)}
+      </div>
+    `)
+    .join("")}
+`;
 });
