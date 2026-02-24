@@ -10,7 +10,7 @@
   <div class="game-wrapper">
     <header class="main-header">
       <div class="logo-area">
-        <img src="https://i.imgur.com/89kR0S7.png" alt="AOE2 Logo" class="logo">
+        <img src="https://wallpapers.com/images/hd/age-of-empires-ii-definitive-edition-logo-7p6u8u8u8u8u8u8u.png" alt="AOE2 Logo" class="logo">
         <h1 class="header-title">Counter Pair Generator</h1>
       </div>
     </header>
@@ -20,23 +20,23 @@
         <div class="ornate-divider"><span>Select Matchup & Log Result</span></div>
         <div class="controls-grid">
           <div class="input-group">
-            <label for="enemy1">Enemy Civ 1:</label>
+            <label>Enemy Civ 1:</label>
             <select id="enemy1"></select>
           </div>
           <div class="input-group">
-            <label for="enemy2">Enemy Civ 2:</label>
+            <label>Enemy Civ 2:</label>
             <select id="enemy2"></select>
           </div>
           <div class="input-group">
-            <label for="ally1">Your Civ 1:</label>
+            <label>Your Civ 1:</label>
             <select id="ally1"></select>
           </div>
           <div class="input-group">
-            <label for="ally2">Your Civ 2:</label>
+            <label>Your Civ 2:</label>
             <select id="ally2"></select>
           </div>
           <div class="input-group">
-            <label for="gameResult">Game Result:</label>
+            <label>Game Result:</label>
             <select id="gameResult">
               <option value="win">Win</option>
               <option value="loss">Loss</option>
@@ -46,7 +46,7 @@
             <button id="logBtn" class="btn btn-green">Log Game</button>
           </div>
         </div>
-        <button id="suggestBtn" class="btn btn-blue full-width">Suggest Counters —></button>
+        <button id="suggestBtn" class="btn btn-blue full-width">Suggest Counters —&gt;</button>
       </section>
 
       <section class="ui-panel">
@@ -57,22 +57,19 @@
 
       <section class="ui-panel">
         <div class="ornate-divider"><span>Recent Match History</span></div>
-        <div class="table-wrapper">
-          <table class="history-table">
-            <thead>
-              <tr>
-                <th>Enemy 1</th>
-                <th>Enemy 2</th>
-                <th>Your Civ 1</th>
-                <th>Your Civ 2</th>
-                <th>Result</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody id="historyTableBody">
-              </tbody>
-          </table>
-        </div>
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Enemy 1</th>
+              <th>Enemy 2</th>
+              <th>Your Civ 1</th>
+              <th>Your Civ 2</th>
+              <th>Result</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody"></tbody>
+        </table>
       </section>
     </main>
   </div>
