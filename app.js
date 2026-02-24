@@ -1,5 +1,5 @@
 window.onload = function() {
-    // 1. DATASET
+    // 1. DATASET - Preserved exactly as provided
     const CIVS = {
         "Aztecs": { late: 6, goldEff: 7, siege: 6, pop: 7, cav: 0 },
         "Bohemians": { late: 10, goldEff: 8, siege: 10, pop: 8, cav: 4 },
@@ -52,6 +52,7 @@ window.onload = function() {
     const resultsDiv = document.getElementById("results");
     const logBtn = document.getElementById("logBtn");
     const clearBtn = document.getElementById("clearBtn");
+    const suggestBtn = document.getElementById("suggestBtn"); // Re-verified ID
     const gameResultSelect = document.getElementById("gameResult");
     const historyTableBody = document.getElementById("historyTableBody");
     const statsContainer = document.getElementById("statsContainer");
@@ -65,7 +66,6 @@ window.onload = function() {
         civNames.forEach(c => { html += `<option value="${c}">${c}</option>`; });
         select.innerHTML = html;
     }
-    
     [enemy1Select, enemy2Select, ally1Select, ally2Select].forEach(populateDropdown);
 
     // 2. Data Storage
@@ -76,12 +76,13 @@ window.onload = function() {
     function renderHistory() {
         if (!historyTableBody) return;
         const history = getHistory().reverse();
+        // Added inline style to ensure table text is white/visible
         historyTableBody.innerHTML = history.slice(0, 8).map(g => `
-        <tr style="color: white; border-bottom: 1px solid #444;">
-          <td style="padding: 8px;">${g.enemy1} & ${g.enemy2}</td>
-          <td style="padding: 8px;"><strong>${g.ally1} & ${g.ally2}</strong></td>
-          <td style="padding: 8px;" class="${g.result}-text">${g.result.toUpperCase()}</td>
-          <td style="padding: 8px;">${new Date(g.timestamp).toLocaleDateString()}</td>
+        <tr style="color: white;">
+          <td>${g.enemy1} & ${g.enemy2}</td>
+          <td><strong>${g.ally1} & ${g.ally2}</strong></td>
+          <td class="${g.result}-text">${g.result.toUpperCase()}</td>
+          <td>${new Date(g.timestamp).toLocaleDateString()}</td>
         </tr>
       `).join("");
         renderStats();
@@ -91,7 +92,7 @@ window.onload = function() {
         if (!statsContainer) return;
         const history = getHistory();
         if (history.length === 0) {
-            statsContainer.innerHTML = "<p style='color: #ccc;'>No games logged.</p>";
+            statsContainer.innerHTML = "<p>No games logged.</p>";
             return;
         }
         const civStats = {};
@@ -107,19 +108,13 @@ window.onload = function() {
             .sort((a, b) => b.wins - a.wins).slice(0, 3);
 
         statsContainer.innerHTML = sorted.map(s => `
-        <div class="stat-box" style="background: #333; color: white; padding: 10px; margin: 5px; border-radius: 4px;">
-            <strong>${s.name}</strong><br><span style="color: #00ff88;">${s.wins} Wins</span>
-        </div>
+        <div class="stat-box" style="color: white;"><strong>${s.name}</strong><br><span class="win-text">${s.wins} Wins</span></div>
       `).join("");
     }
 
     // 4. Action Listeners
     if (logBtn) {
         logBtn.onclick = () => {
-            if(!enemy1Select.value || !ally1Select.value) {
-                alert("Please select civilizations before logging!");
-                return;
-            }
             const history = getHistory();
             history.push({
                 enemy1: enemy1Select.value, enemy2: enemy2Select.value,
@@ -141,13 +136,14 @@ window.onload = function() {
     // 5. THE MAIN SUGGESTION BUTTON
     if (suggestBtn) {
         suggestBtn.onclick = function() {
+            // Using a high-contrast style for the loading text
             resultsDiv.innerHTML = "<p style='color: white;'>Analyzing Michi Meta...</p>";
 
             const e1 = enemy1Select.value;
             const e2 = enemy2Select.value;
             
             if (!e1 || !e2) {
-                resultsDiv.innerHTML = "<p style='color: #ffcc00;'>Please select both enemy civilizations first!</p>";
+                resultsDiv.innerHTML = "<p style='color: #ffcc00;'>Select enemy civs first!</p>";
                 return;
             }
 
@@ -184,19 +180,11 @@ window.onload = function() {
 
             let html = "";
             pairs.slice(0, 5).forEach(p => {
+                // FIXED: Direct high-contrast styling for the cards
                 html += `
-                <div class="result-card" style="
-                    border: 1px solid #ffcc00; 
-                    margin: 10px 0; 
-                    padding: 15px; 
-                    border-radius: 8px; 
-                    background: #1a1a1a; 
-                    color: #ffffff;
-                    text-align: left;
-                ">
-                    <strong style="color: #00ffcc; font-size: 1.2em;">${p.nameA} & ${p.nameB}</strong><br>
-                    <span style="color: #bbb;">Michi Power Rating: </span>
-                    <strong style="color: #ffcc00; font-size: 1.1em;">${Math.round(p.score)}</strong>
+                <div class="result-card" style="border: 1px solid #ffcc00; margin: 5px; padding: 10px; border-radius: 5px; background: #111; color: white;">
+                    <strong style="color: #00ffcc;">${p.nameA} & ${p.nameB}</strong><br>
+                    <small style="color: #ffcc00;">Michi Power Rating: ${Math.round(p.score)}</small>
                 </div>`;
             });
             resultsDiv.innerHTML = html;
