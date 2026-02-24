@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AOE2 DE Counter Picker</title>
+  <title>AOE2 Michi Counter Picker</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -11,20 +11,20 @@
     <header class="main-header">
       <div class="header-content">
         <div class="logo-text">AOE II: DE</div>
-        <h1 class="header-title">Counter Pair Generator</h1>
+        <h1 class="header-title">Michi 2v2 Strategy Engine</h1>
       </div>
     </header>
 
     <main class="parchment-container">
       <section class="ui-panel">
-        <div class="ornate-divider"><span>Select Matchup & Log Result</span></div>
+        <div class="ornate-divider"><span>Enemy Matchup & Logging</span></div>
         <div class="controls-grid">
           <div class="input-group">
-            <label>Enemy Civ 1:</label>
+            <label>Enemy 1:</label>
             <select id="enemy1"></select>
           </div>
           <div class="input-group">
-            <label>Enemy Civ 2:</label>
+            <label>Enemy 2:</label>
             <select id="enemy2"></select>
           </div>
           <div class="input-group">
@@ -36,7 +36,7 @@
             <select id="ally2"></select>
           </div>
           <div class="input-group">
-            <label>Game Result:</label>
+            <label>Result:</label>
             <select id="gameResult">
               <option value="win">Win</option>
               <option value="loss">Loss</option>
@@ -44,34 +44,32 @@
             <button id="logBtn" class="btn btn-green" style="margin-top: 10px; width: 100%;">Log Game</button>
           </div>
         </div>
-        <button id="suggestBtn" class="btn btn-blue full-width">Suggest Counters —&gt;</button>
+        <button id="suggestBtn" class="btn btn-blue full-width">Generate Michi Suggestion</button>
       </section>
 
       <section class="ui-panel">
-        <div class="ornate-divider"><span>Civilization Statistics</span></div>
-        <div id="statsContainer" class="stats-grid">
-          <p style="text-align:center; font-style:italic; width:100%;">No data yet. Log games to see your best civs!</p>
-        </div>
-      </section>
-
-      <section class="ui-panel">
-        <div class="ornate-divider"><span>Top Counter Suggestions</span></div>
+        <div class="ornate-divider"><span>Top Suggestions</span></div>
         <div id="results"></div>
       </section>
 
       <section class="ui-panel">
-        <div class="ornate-divider"><span>Recent Match History</span></div>
+        <div class="ornate-divider"><span>Your Best Michi Civs</span></div>
+        <div id="statsContainer" class="stats-grid"></div>
+      </section>
+
+      <section class="ui-panel">
+        <div class="ornate-divider"><span>Recent History</span></div>
         <div class="table-wrapper">
           <table class="history-table">
             <thead>
               <tr>
-                <th>Enemy 1</th><th>Enemy 2</th><th>Your Civ 1</th><th>Your Civ 2</th><th>Result</th><th>Date</th>
+                <th>Enemy Team</th><th>Your Team</th><th>Result</th><th>Date</th>
               </tr>
             </thead>
             <tbody id="historyTableBody"></tbody>
           </table>
         </div>
-        <button id="clearBtn" class="btn btn-orange" style="margin-top: 15px; font-size: 0.7rem; padding: 5px 15px;">Clear All History</button>
+        <button id="clearBtn" class="btn btn-orange" style="margin-top: 15px; font-size: 0.7rem; padding: 5px 15px;">Clear History</button>
       </section>
     </main>
   </div>
