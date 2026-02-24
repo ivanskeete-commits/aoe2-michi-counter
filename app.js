@@ -52,7 +52,7 @@ window.onload = function() {
     const resultsDiv = document.getElementById("results");
     const logBtn = document.getElementById("logBtn");
     const clearBtn = document.getElementById("clearBtn");
-    const suggestBtn = document.getElementById("suggestBtn"); // Re-verified ID
+    const suggestBtn = document.getElementById("suggestBtn");
     const gameResultSelect = document.getElementById("gameResult");
     const historyTableBody = document.getElementById("historyTableBody");
     const statsContainer = document.getElementById("statsContainer");
@@ -76,7 +76,6 @@ window.onload = function() {
     function renderHistory() {
         if (!historyTableBody) return;
         const history = getHistory().reverse();
-        // Added inline style to ensure table text is white/visible
         historyTableBody.innerHTML = history.slice(0, 8).map(g => `
         <tr style="color: white;">
           <td>${g.enemy1} & ${g.enemy2}</td>
@@ -92,7 +91,7 @@ window.onload = function() {
         if (!statsContainer) return;
         const history = getHistory();
         if (history.length === 0) {
-            statsContainer.innerHTML = "<p>No games logged.</p>";
+            statsContainer.innerHTML = "<p style='color: white;'>No games logged.</p>";
             return;
         }
         const civStats = {};
@@ -133,10 +132,9 @@ window.onload = function() {
         };
     }
 
-    // 5. THE MAIN SUGGESTION BUTTON
+    // 5. THE MAIN SUGGESTION BUTTON (Refined with Counter Logic)
     if (suggestBtn) {
         suggestBtn.onclick = function() {
-            // Using a high-contrast style for the loading text
             resultsDiv.innerHTML = "<p style='color: white;'>Analyzing Michi Meta...</p>";
 
             const e1 = enemy1Select.value;
@@ -158,11 +156,31 @@ window.onload = function() {
 
                     const a = CIVS[civA];
                     const b = CIVS[civB];
+                    
+                    // A. BASE SCORING
                     let score = (a.late + b.late) * 15 + (a.goldEff + b.goldEff) * 10;
 
+                    // B. SYNERGY BONUSES
                     if ((a.siege >= 9 && b.pop >= 9) || (b.siege >= 9 && a.pop >= 9)) score += 50;
                     if (civA === "Spanish" || civB === "Spanish") score += 60;
 
+                    // C. NEW REFINEMENT LOGIC
+                    
+                    // Anecdotal: Celts/Mongols are good against Persians
+                    const isPersianPresent = (e1 === "Persians" || e2 === "Persians");
+                    if (isPersianPresent) {
+                        if (civA === "Celts" || civB === "Celts") score += 45;
+                        if (civA === "Mongols" || civB === "Mongols") score += 45;
+                    }
+
+                    // Strategic: Anti-Goth logic (Splash/Unique Infantry counters)
+                    const isGothPresent = (e1 === "Goths" || e2 === "Goths");
+                    if (isGothPresent) {
+                        if (civA === "Byzantines" || civB === "Byzantines") score += 30;
+                        if (civA === "Teutons" || civB === "Teutons") score += 30;
+                    }
+
+                    // D. WIN-RATE HISTORY INFLUENCE
                     const pairGames = history.filter(g => 
                         (g.ally1 === civA && g.ally2 === civB) || (g.ally1 === civB && g.ally2 === civA)
                     );
@@ -180,7 +198,6 @@ window.onload = function() {
 
             let html = "";
             pairs.slice(0, 5).forEach(p => {
-                // FIXED: Direct high-contrast styling for the cards
                 html += `
                 <div class="result-card" style="border: 1px solid #ffcc00; margin: 5px; padding: 10px; border-radius: 5px; background: #111; color: white;">
                     <strong style="color: #00ffcc;">${p.nameA} & ${p.nameB}</strong><br>
